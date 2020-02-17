@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/AddGroupPage.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
 import 'package:self_control/screens/AuthPage.dart';
