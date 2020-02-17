@@ -4,7 +4,6 @@ import 'package:self_control/firebase/auth.dart';
 import 'MainPage.dart';
 
 class AuthPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +22,7 @@ class AuthForm extends StatefulWidget {
 }
 
 class _AuthFormState extends State<AuthForm> {
+  bool isLogin = true;
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -41,8 +41,8 @@ class _AuthFormState extends State<AuthForm> {
         child: Column(children: <Widget>[
           TextFormField(
             controller: emailController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.account_circle), labelText: "email"),
+            decoration: InputDecoration(
+                icon: Icon(Icons.account_circle), labelText: "email"),
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter some text';
@@ -53,8 +53,8 @@ class _AuthFormState extends State<AuthForm> {
           TextFormField(
             obscureText: true,
             controller: passwordController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.vpn_key), labelText: "password"),
+            decoration: InputDecoration(
+                icon: Icon(Icons.vpn_key), labelText: "password"),
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter some text';
@@ -65,13 +65,28 @@ class _AuthFormState extends State<AuthForm> {
           RaisedButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                Auth.createUser(email:emailController.text, password:passwordController.text);
+                if(isLogin){
+                  Auth.signIn(
+                      email: emailController.text,
+                      password: passwordController.text);
+                }
+                else {
+                  Auth.createUser(email:emailController.text, password:passwordController.text);
+                }
                 Scaffold.of(context)
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
               }
             },
-            child: Text('Login'),
-          )
+            child: Text(isLogin ? "로그인" : "회원가입"),
+          ),
+          GestureDetector(
+              onTap: () {
+                setState(() {
+                  print(isLogin);
+                  isLogin = !isLogin;
+                });
+              },
+              child: Text(isLogin ? "회원가입하기" : "로그인하기"))
         ]));
   }
 }

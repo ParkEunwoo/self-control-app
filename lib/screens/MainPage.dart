@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
+import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
 
 import 'AddGroupPage.dart';
@@ -63,6 +64,13 @@ class _PageState extends State<Page> {
               },
               leading: Icon(Icons.group_work),
               title: Text('모임 목록'),
+            ),
+            ListTile(
+              onTap: () {
+                Auth.signOut();
+              },
+              leading: Icon(Icons.account_circle),
+              title: Text('로그아웃'),
             ),
           ],
         ),

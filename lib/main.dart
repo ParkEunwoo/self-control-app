@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:self_control/screens/AddGroupPage.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
@@ -18,7 +19,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AuthPage(),
+      home: Splash(),
+    );
+  }
+}
+
+class Splash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<FirebaseUser>(
+      stream:FirebaseAuth.instance.onAuthStateChanged,
+      builder: (context, snapshot) {
+        if(snapshot.data == null){
+          return AuthPage();
+        }
+        return MainPage();
+      }
     );
   }
 }
