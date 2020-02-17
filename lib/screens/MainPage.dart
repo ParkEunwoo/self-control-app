@@ -7,8 +7,33 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.view_headline),
         title: Text("MainPage"),
+      ),
+      drawer:Drawer(
+        child:ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Drawer Header'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_today),
+              title: Text('내 계획'),
+            ),
+            ListTile(
+              leading: Icon(Icons.supervisor_account),
+              title: Text('친구 목록'),
+            ),
+            ListTile(
+              leading: Icon(Icons.group_work),
+              title: Text('모임 목록'),
+            ),
+          ],
+        ),
       ),
       body: ListView(
         children: <Widget>[
