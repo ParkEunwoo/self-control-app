@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
 
+import 'MainPage.dart';
+
 class AuthPage extends StatelessWidget {
   final Widget svg = SvgPicture.asset(
     'assets/icons8-google.svg',
@@ -14,7 +16,12 @@ class AuthPage extends StatelessWidget {
       ),
       body: Center(
           child: FlatButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+              },
               child: Card(
                 elevation: 2,
                 child: Row(
