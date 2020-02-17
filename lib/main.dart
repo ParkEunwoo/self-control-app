@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:self_control/screens/AddPage.dart';
+import 'package:self_control/screens/AddGroupPage.dart';
+import 'package:self_control/screens/AddPlanPage.dart';
 import 'package:self_control/screens/AuthPage.dart';
 import 'package:self_control/screens/FriendListPage.dart';
+import 'package:self_control/screens/GroupListPage.dart';
 import 'package:self_control/screens/MainPage.dart';
 
 void main() => runApp(MyApp());

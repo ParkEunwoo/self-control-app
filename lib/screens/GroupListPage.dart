@@ -1,14 +1,15 @@
 import "package:flutter/material.dart";
 
-class FriendListPage extends StatelessWidget {
+class GroupListPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("FriendListPage"),
       ),
-      drawer: Drawer(
-        child: ListView(
+      drawer:Drawer(
+        child:ListView(
           // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -36,26 +37,14 @@ class FriendListPage extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           ListTile(
-              leading: Icon(Icons.person),
-              title: Text('권기남'),
-              trailing: Icon(Icons.delete)),
-          ListTile(
-              onTap: () {},
-              leading: Icon(Icons.person),
-              title: Text('권기남'),
-              trailing: Icon(Icons.check_box)),
-          ListTile(
-              leading: Icon(Icons.person),
-              title: Text('권기남'),
-              trailing: Icon(Icons.delete)),
-          ListTile(
-              leading: Icon(Icons.person),
-              title: Text('권기남'),
-              trailing: Icon(Icons.delete)),
+              leading: Icon(Icons.group),
+              title: Text('우용동언'),
+              trailing: Icon(Icons.delete)
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: (){},
         tooltip: 'Add',
         child: Icon(Icons.add),
       ),
