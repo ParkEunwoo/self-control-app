@@ -8,7 +8,7 @@ class Auth {
     AuthResult result = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
     FirebaseUser user = result.user;
-    Store.createUser(uid: user.uid, name: name);
+    Store.createUser(uid: user.uid, email: email, name: name);
   }
 
   static void signIn(

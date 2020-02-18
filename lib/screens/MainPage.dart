@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
 
