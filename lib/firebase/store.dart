@@ -34,6 +34,11 @@ class Store with ChangeNotifier {
     notifyListeners();
   }
 
+  void removeFriend(String id) {
+    friends.document(id).delete();
+    notifyListeners();
+  }
+
   static void createUser(
       {@required String uid,
       @required String email,

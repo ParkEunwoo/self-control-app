@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import 'package:self_control/screens/FriendListPage.dart';
 
 class AddGroupPage extends StatelessWidget {
   @override

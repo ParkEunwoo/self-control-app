@@ -75,7 +75,7 @@ class _PageState extends State<Page> {
     );
   }
 
-  Widget _buildDrawer(){
+  Widget _buildDrawer() {
     return Drawer(
       child: ListView(
         // Important: Remove any padding from the ListView.
@@ -146,8 +146,8 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(
-      BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow,
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
+      Function buildRow,
       {CollectionReference reference}) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -183,11 +183,17 @@ class ListPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFriend(BuildContext context, DocumentSnapshot friend) {
-    return ListTile(
-        leading: Icon(Icons.person),
-        title: Text(friend['name']),
-        trailing: Icon(Icons.delete));
+  Function _buildFriend(Function removeFriend) {
+    Widget buildRow(BuildContext context, DocumentSnapshot friend,
+        {CollectionReference reference}) {
+      return ListTile(
+          leading: Icon(Icons.person),
+          title: Text(friend['name']),
+          trailing: IconButton(icon: Icon(Icons.delete), onPressed: () {
+            removeFriend(friend.documentID);
+          }));
+    }
+    return buildRow;
   }
 
   @override
@@ -195,7 +201,10 @@ class ListPage extends StatelessWidget {
     switch (page) {
       case MAIN_PAGE:
         return StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<Store>(context).plans.snapshots(),
+          stream: Provider
+              .of<Store>(context)
+              .plans
+              .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
@@ -204,13 +213,18 @@ class ListPage extends StatelessWidget {
                 return LinearProgressIndicator();
               default:
                 return _buildList(context, snapshot.data.documents, _buildPlan,
-                    reference: Provider.of<Store>(context).plans);
+                    reference: Provider
+                        .of<Store>(context)
+                        .plans);
             }
           },
         );
       case FRIEND_PAGE:
         return StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<Store>(context).friends.snapshots(),
+          stream: Provider
+              .of<Store>(context)
+              .friends
+              .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
@@ -219,7 +233,7 @@ class ListPage extends StatelessWidget {
                 return LinearProgressIndicator();
               default:
                 return _buildList(
-                    context, snapshot.data.documents, _buildFriend);
+                    context, snapshot.data.documents, _buildFriend(Provider.of<Store>(context).removeFriend));
             }
           },
         );
