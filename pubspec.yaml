@@ -27,6 +27,7 @@ dependencies:
   table_calendar: ^2.2.2
   firebase_auth: ^0.15.4
   cloud_firestore: ^0.13.2+1
+  provider: ^4.0.4
 
 
 dev_dependencies:
