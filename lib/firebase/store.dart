@@ -28,7 +28,12 @@ class Store with ChangeNotifier {
     notifyListeners();
   }
 
-
+  void addFriend(String email) {
+    Users.where("email", isEqualTo: email).snapshots().listen((onData) => onData
+        .documents
+        .forEach((doc) => friends.add({"email": email, "name": doc['name']})));
+    notifyListeners();
+  }
 
   static void createUser(
       {@required String uid,

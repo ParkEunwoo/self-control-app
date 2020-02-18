@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
-import 'package:self_control/data/friend.dart';
 import 'package:self_control/data/plan.dart';
 import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/firebase/store.dart';
@@ -105,11 +104,11 @@ class _PageState extends State<Page> {
               Provider.of<Store>(context, listen: false).addPlan(plan);
               break;
             case FRIEND_PAGE:
-              Plan plan = await Navigator.push(
+              String email = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddFriendPage()),
               );
-              Provider.of<Store>(context, listen: false).addPlan(plan);
+              Provider.of<Store>(context, listen: false).addFriend(email);
               break;
             case GROUP_PAGE:
               Plan plan = await Navigator.push(
@@ -208,10 +207,10 @@ class ListPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFriend(BuildContext context, Friend friend) {
+  Widget _buildFriend(BuildContext context, DocumentSnapshot friend) {
     return ListTile(
         leading: Icon(Icons.person),
-        title: Text(friend.name),
+        title: Text(friend['name']),
         trailing: Icon(Icons.delete));
   }
 
@@ -233,6 +232,19 @@ class ListPage extends StatelessWidget {
           },
         );
       case FRIEND_PAGE:
+        return StreamBuilder<QuerySnapshot>(
+          stream: Provider.of<Store>(context).friends.snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return LinearProgressIndicator();
+              default:
+                return _buildList(context, snapshot.data.documents, _buildFriend);
+            }
+          },
+        );
       case GROUP_PAGE:
       default:
         return Container();

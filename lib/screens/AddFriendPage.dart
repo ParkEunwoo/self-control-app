@@ -46,6 +46,7 @@ class _GroupFormState extends State<GroupForm> {
           RaisedButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
+                Navigator.pop(context, emailController.text);
                 Scaffold.of(context)
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
               }
