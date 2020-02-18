@@ -158,15 +158,15 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List list, Function buildRow) {
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
           print('item: $i');
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
-          if (index < list.length) {
-            return buildRow(context, list.elementAt(index));
+          if (index < snapshot.length) {
+            return buildRow(context, snapshot.elementAt(index));
           }
           return null;
         });
@@ -209,11 +209,7 @@ class ListPage extends StatelessWidget {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting: return LinearProgressIndicator();
               default:
-                return ListView(
-                  children: snapshot.data.documents.map((DocumentSnapshot document) {
-                    return _buildPlan(context, document);
-                  }).toList(),
-                );
+                return _buildList(context, snapshot.data.documents, _buildPlan);
             }
           },
         );
