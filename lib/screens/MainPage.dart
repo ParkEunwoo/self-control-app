@@ -94,7 +94,6 @@ class _PageState extends State<Page> {
       body: ListPage(page: page),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-
           switch (page) {
             case MAIN_PAGE:
               Plan plan = await Navigator.push(
@@ -125,7 +124,6 @@ class _PageState extends State<Page> {
               Provider.of<Store>(context, listen: false).addPlan(plan);
               break;
           }
-
         },
         tooltip: 'Add',
         child: Icon(Icons.add),
@@ -174,27 +172,31 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
-      Function buildRow) {
+  Widget _buildList(
+      BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow,
+      {CollectionReference reference}) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
-          print('item: $i');
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
           if (index < snapshot.length) {
-            return buildRow(context, snapshot.elementAt(index));
+            return buildRow(context, snapshot.elementAt(index),
+                reference: reference);
           }
           return null;
         });
   }
 
-  Widget _buildPlan(BuildContext context, DocumentSnapshot plan) {
+  Widget _buildPlan(BuildContext context, DocumentSnapshot plan,
+      {CollectionReference reference}) {
     return ListTile(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => DetailPage()),
+          MaterialPageRoute(
+              builder: (context) =>
+                  DetailPage(plan: reference.document(plan.documentID))),
         );
       },
       leading: Icon(Icons.star),
@@ -227,7 +229,8 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return _buildList(context, snapshot.data.documents, _buildPlan);
+                return _buildList(context, snapshot.data.documents, _buildPlan,
+                    reference: Provider.of<Store>(context).plans);
             }
           },
         );
@@ -241,7 +244,8 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return _buildList(context, snapshot.data.documents, _buildFriend);
+                return _buildList(
+                    context, snapshot.data.documents, _buildFriend);
             }
           },
         );
