@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
+
 class Plan {
-  String id;
   String title;
   int period;
   String periodUnit;
@@ -9,6 +10,11 @@ class Plan {
 
   int now = 0;
 
-  Plan({this.id, this.title, this.period, this.periodUnit, this.times, this.timesUnit, this.isPositive});
+  Plan({@required this.title,
+    @required this.period,
+    @required this.periodUnit,
+    @required this.times,
+    @required this.timesUnit,
+    @required this.isPositive});
 
 }

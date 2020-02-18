@@ -1,4 +1,7 @@
 import "package:flutter/material.dart";
+import 'package:provider/provider.dart';
+import 'package:self_control/data/plan.dart';
+import 'package:self_control/firebase/store.dart';
 
 class AddPlanPage extends StatelessWidget {
   @override
@@ -22,7 +25,8 @@ class _AddFormState extends State<AddForm> {
   final periodController = TextEditingController();
   final timesController = TextEditingController();
   final unitController = TextEditingController();
-  String dropdownValue = '주';
+  String periodUnit = '주';
+  bool isPositive = false;
 
   @override
   void dispose() {
@@ -61,14 +65,14 @@ class _AddFormState extends State<AddForm> {
             },
           ),
           DropdownButton<String>(
-            value: dropdownValue,
+            value: periodUnit,
             underline: Container(
               height: 2,
               color: Colors.deepPurpleAccent,
             ),
-            onChanged: (String newValue) {
+            onChanged: (value) {
               setState(() {
-                dropdownValue = newValue;
+                periodUnit = value;
               });
             },
             items: <String>['주', '일']
@@ -92,7 +96,8 @@ class _AddFormState extends State<AddForm> {
           ),
           TextFormField(
             controller: unitController,
-            decoration: InputDecoration(icon:Icon(Icons.extension),labelText: "단위"),
+            decoration:
+                InputDecoration(icon: Icon(Icons.extension), labelText: "단위"),
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter some text';
@@ -100,9 +105,25 @@ class _AddFormState extends State<AddForm> {
               return null;
             },
           ),
+          Checkbox(
+              value: isPositive,
+              onChanged: (value) {
+                setState(() {
+                  isPositive = value;
+                });
+              }),
           RaisedButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
+                Navigator.pop(
+                    context,
+                    Plan(
+                        title: titleController.text,
+                        period: int.parse(periodController.text),
+                        periodUnit: periodUnit,
+                        times: int.parse(timesController.text),
+                        timesUnit: unitController.text,
+                        isPositive: isPositive));
                 Scaffold.of(context)
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
               }

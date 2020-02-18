@@ -15,21 +15,15 @@ class Store with ChangeNotifier {
     friends = user.collection('friends');
   }
 
-  void addPlan(
-      {@required String title,
-      @required int period,
-      @required String periodUnit,
-      @required int times,
-      @required String timesUnit,
-      @required bool isPositive}) async {
+  void addPlan(Plan plan) async {
     await plans.add({
-      "title": title,
-      "period": period,
-      "periodUnit": periodUnit,
-      "times": times,
-      "timesUnit": timesUnit,
+      "title": plan.title,
+      "period": plan.period,
+      "periodUnit": plan.periodUnit,
+      "times": plan.times,
+      "timesUnit": plan.timesUnit,
       "now": 0,
-      "isPositive": isPositive
+      "isPositive": plan.isPositive
     });
     notifyListeners();
   }

@@ -94,22 +94,39 @@ class _PageState extends State<Page> {
       ),
       body: ListPage(page: page),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) {
-              switch (page) {
-                case MAIN_PAGE:
-                  return AddPlanPage();
-                case FRIEND_PAGE:
-                  return AddFriendPage();
-                case GROUP_PAGE:
-                  return AddGroupPage();
-                default:
-                  return AddPlanPage();
-              }
-            }),
-          );
+        onPressed: () async {
+
+          switch (page) {
+            case MAIN_PAGE:
+              Plan plan = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddPlanPage()),
+              );
+              Provider.of<Store>(context, listen: false).addPlan(plan);
+              break;
+            case FRIEND_PAGE:
+              Plan plan = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddFriendPage()),
+              );
+              Provider.of<Store>(context, listen: false).addPlan(plan);
+              break;
+            case GROUP_PAGE:
+              Plan plan = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddGroupPage()),
+              );
+              Provider.of<Store>(context, listen: false).addPlan(plan);
+              break;
+            default:
+              Plan plan = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddPlanPage()),
+              );
+              Provider.of<Store>(context, listen: false).addPlan(plan);
+              break;
+          }
+
         },
         tooltip: 'Add',
         child: Icon(Icons.add),
@@ -158,7 +175,8 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow) {
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
+      Function buildRow) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
@@ -202,12 +220,13 @@ class ListPage extends StatelessWidget {
     switch (page) {
       case MAIN_PAGE:
         return StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<Store>(context, listen: false).plans.snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError)
-              return Text('Error: ${snapshot.error}');
+          stream: Provider.of<Store>(context).plans.snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
             switch (snapshot.connectionState) {
-              case ConnectionState.waiting: return LinearProgressIndicator();
+              case ConnectionState.waiting:
+                return LinearProgressIndicator();
               default:
                 return _buildList(context, snapshot.data.documents, _buildPlan);
             }
