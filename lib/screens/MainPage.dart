@@ -40,68 +40,11 @@ class _PageState extends State<Page> {
       appBar: AppBar(
         title: Text("MainPage"),
       ),
-      drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Drawer Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  page = MAIN_PAGE;
-                });
-                Navigator.pop(context);
-              },
-              leading: Icon(Icons.calendar_today),
-              title: Text('내 계획'),
-            ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  page = FRIEND_PAGE;
-                });
-                Navigator.pop(context);
-              },
-              leading: Icon(Icons.supervisor_account),
-              title: Text('친구 목록'),
-            ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  page = GROUP_PAGE;
-                });
-                Navigator.pop(context);
-              },
-              leading: Icon(Icons.group_work),
-              title: Text('모임 목록'),
-            ),
-            ListTile(
-              onTap: () {
-                Auth.signOut();
-              },
-              leading: Icon(Icons.account_circle),
-              title: Text('로그아웃'),
-            ),
-          ],
-        ),
-      ),
+      drawer: _buildDrawer(),
       body: ListPage(page: page),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           switch (page) {
-            case MAIN_PAGE:
-              Plan plan = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddPlanPage()),
-              );
-              Provider.of<Store>(context, listen: false).addPlan(plan);
-              break;
             case FRIEND_PAGE:
               String email = await Navigator.push(
                 context,
@@ -116,6 +59,7 @@ class _PageState extends State<Page> {
               );
               Provider.of<Store>(context, listen: false).addPlan(plan);
               break;
+            case MAIN_PAGE:
             default:
               Plan plan = await Navigator.push(
                 context,
@@ -131,27 +75,57 @@ class _PageState extends State<Page> {
     );
   }
 
-  Widget FriendList() {
-    return ListView(
-      children: <Widget>[
-        ListTile(
-            leading: Icon(Icons.person),
-            title: Text('권기남'),
-            trailing: Icon(Icons.delete)),
-        ListTile(
-            onTap: () {},
-            leading: Icon(Icons.person),
-            title: Text('권기남'),
-            trailing: Icon(Icons.check_box)),
-        ListTile(
-            leading: Icon(Icons.person),
-            title: Text('권기남'),
-            trailing: Icon(Icons.delete)),
-        ListTile(
-            leading: Icon(Icons.person),
-            title: Text('권기남'),
-            trailing: Icon(Icons.delete)),
-      ],
+  Widget _buildDrawer(){
+    return Drawer(
+      child: ListView(
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text('Drawer Header'),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                page = MAIN_PAGE;
+              });
+              Navigator.pop(context);
+            },
+            leading: Icon(Icons.calendar_today),
+            title: Text('내 계획'),
+          ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                page = FRIEND_PAGE;
+              });
+              Navigator.pop(context);
+            },
+            leading: Icon(Icons.supervisor_account),
+            title: Text('친구 목록'),
+          ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                page = GROUP_PAGE;
+              });
+              Navigator.pop(context);
+            },
+            leading: Icon(Icons.group_work),
+            title: Text('모임 목록'),
+          ),
+          ListTile(
+            onTap: () {
+              Auth.signOut();
+            },
+            leading: Icon(Icons.account_circle),
+            title: Text('로그아웃'),
+          ),
+        ],
+      ),
     );
   }
 

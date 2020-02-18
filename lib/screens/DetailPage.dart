@@ -35,11 +35,11 @@ class DetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
-        RemainingTime(period:data['periodUnit']),
+        RemainingTime(period:data['period']),
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Text('${data['period']}${data['periodUnit']}'),
+              Text('1${data['period']}'),
               Text("${data['now']}/${data['times']}${data['timesUnit']}"),
             ]),
         Calendar()

@@ -22,16 +22,14 @@ class AddForm extends StatefulWidget {
 class _AddFormState extends State<AddForm> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
-  final periodController = TextEditingController();
   final timesController = TextEditingController();
   final unitController = TextEditingController();
-  String periodUnit = '주';
+  String period = '주';
   bool isPositive = false;
 
   @override
   void dispose() {
     titleController.dispose();
-    periodController.dispose();
     timesController.dispose();
     unitController.dispose();
     super.dispose();
@@ -53,26 +51,15 @@ class _AddFormState extends State<AddForm> {
               return null;
             },
           ),
-          TextFormField(
-            controller: periodController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.date_range), labelText: "기간"),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
           DropdownButton<String>(
-            value: periodUnit,
+            value: period,
             underline: Container(
               height: 2,
               color: Colors.deepPurpleAccent,
             ),
             onChanged: (value) {
               setState(() {
-                periodUnit = value;
+                period = value;
               });
             },
             items: <String>['주', '일']
@@ -105,7 +92,9 @@ class _AddFormState extends State<AddForm> {
               return null;
             },
           ),
-          Checkbox(
+          CheckboxListTile(
+            secondary: Icon(Icons.thumb_up),
+            title:Text('긍정'),
               value: isPositive,
               onChanged: (value) {
                 setState(() {
@@ -119,8 +108,7 @@ class _AddFormState extends State<AddForm> {
                     context,
                     Plan(
                         title: titleController.text,
-                        period: int.parse(periodController.text),
-                        periodUnit: periodUnit,
+                        period: period,
                         times: int.parse(timesController.text),
                         timesUnit: unitController.text,
                         isPositive: isPositive));

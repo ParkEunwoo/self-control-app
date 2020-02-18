@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class Plan {
   String title;
-  int period;
-  String periodUnit;
+  String period;
   int times;
   String timesUnit;
   bool isPositive;
@@ -12,7 +11,6 @@ class Plan {
 
   Plan({@required this.title,
     @required this.period,
-    @required this.periodUnit,
     @required this.times,
     @required this.timesUnit,
     @required this.isPositive});

@@ -19,7 +19,6 @@ class Store with ChangeNotifier {
     await plans.add({
       "title": plan.title,
       "period": plan.period,
-      "periodUnit": plan.periodUnit,
       "times": plan.times,
       "timesUnit": plan.timesUnit,
       "now": 0,
