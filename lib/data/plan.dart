@@ -1,4 +1,3 @@
-
 class Plan {
   String id;
   String title;

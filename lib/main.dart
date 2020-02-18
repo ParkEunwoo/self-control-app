@@ -35,7 +35,7 @@ class Splash extends StatelessWidget {
         if(snapshot.data == null){
           return AuthPage();
         }
-        return MainPage();
+        return MainPage(uid:snapshot.data.uid);
       }
     );
   }

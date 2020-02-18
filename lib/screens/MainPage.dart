@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
+import 'package:self_control/data/friend.dart';
+import 'package:self_control/data/friendList.dart';
 import 'package:self_control/data/plan.dart';
 import 'package:self_control/data/planList.dart';
-import 'package:self_control/data/planList.dart';
 import 'package:self_control/firebase/auth.dart';
+import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
 
 import 'AddFriendPage.dart';
@@ -11,10 +14,14 @@ import 'AddGroupPage.dart';
 import 'DetailPage.dart';
 
 class MainPage extends StatelessWidget {
+  String uid;
+
+  MainPage({this.uid});
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<PlanList>(
-        create: (context) => PlanList(), child: Page());
+    return ChangeNotifierProvider<Store>(
+        create: (context) => Store(uid), child: Page());
   }
 }
 
@@ -112,70 +119,6 @@ class _PageState extends State<Page> {
     );
   }
 
-  Widget Body(int page) {
-    switch (page) {
-      case MAIN_PAGE:
-        return PlanList();
-      case FRIEND_PAGE:
-        return FriendList();
-      case GROUP_PAGE:
-        return GroupList();
-    }
-  }
-
-  Widget PlanList() {
-    return ListView(
-      children: <Widget>[
-        ListTile(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DetailPage()),
-            );
-          },
-          leading: Icon(Icons.star),
-          title: Text('금연', style: TextStyle(fontSize: 26)),
-          trailing: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('6/30개피', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.star),
-          title: Text('금딸', style: TextStyle(fontSize: 26)),
-          trailing: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('1/1딸', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.star),
-          title: Text('운동', style: TextStyle(fontSize: 26)),
-          trailing: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('1/2시간', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.star),
-          title: Text('공부', style: TextStyle(fontSize: 26)),
-          trailing: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('1/3시간', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.star),
-          title: Text('절약', style: TextStyle(fontSize: 26)),
-          trailing: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('8700/50000원', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget FriendList() {
     return ListView(
       children: <Widget>[
@@ -217,7 +160,7 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(BuildContext context, PlanList list, Function buildRow) {
+  Widget _buildList(BuildContext context, List list, Function buildRow) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
@@ -225,13 +168,13 @@ class ListPage extends StatelessWidget {
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
           if (index < list.length) {
-            return buildRow(context, list.getItemByIndex(index));
+            return buildRow(context, list.elementAt(index));
           }
           return null;
         });
   }
 
-  Widget _buildPlan(BuildContext context, Plan plan) {
+  Widget _buildPlan(BuildContext context, DocumentSnapshot plan) {
     return ListTile(
       onTap: () {
         Navigator.push(
@@ -240,41 +183,46 @@ class ListPage extends StatelessWidget {
         );
       },
       leading: Icon(Icons.star),
-      title: Text(plan.title, style: TextStyle(fontSize: 26)),
+      title: Text(plan['title'], style: TextStyle(fontSize: 26)),
       trailing: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text('${plan.now}/${plan.times}${plan.timesUnit}',
+        child: Text('${plan['now']}/${plan['times']}${plan['timesUnit']}',
             style: TextStyle(fontSize: 16)),
       ),
     );
   }
 
-/*
-  _addNewNote(BuildContext context) async {
-    Note newNote = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => Edit()));
-    Provider.of<NoteList>(context, listen: false).addNote(newNote);
-  }*/
+  Widget _buildFriend(BuildContext context, Friend friend) {
+    return ListTile(
+        leading: Icon(Icons.person),
+        title: Text(friend.name),
+        trailing: Icon(Icons.delete));
+  }
 
   @override
   Widget build(BuildContext context) {
     switch (page) {
       case MAIN_PAGE:
-        return Consumer<PlanList>(
-            builder: (context, value, child) =>
-                _buildList(context, value, _buildPlan));
+        return StreamBuilder<QuerySnapshot>(
+          stream: Provider.of<Store>(context, listen: false).plans.snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError)
+              return Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting: return LinearProgressIndicator();
+              default:
+                return ListView(
+                  children: snapshot.data.documents.map((DocumentSnapshot document) {
+                    return _buildPlan(context, document);
+                  }).toList(),
+                );
+            }
+          },
+        );
       case FRIEND_PAGE:
-        return Consumer<PlanList>(
-            builder: (context, value, child) =>
-                _buildList(context, value, _buildPlan));
       case GROUP_PAGE:
-        return Consumer<PlanList>(
-            builder: (context, value, child) =>
-                _buildList(context, value, _buildPlan));
       default:
-        return Consumer<PlanList>(
-            builder: (context, value, child) =>
-                _buildList(context, value, _buildPlan));
+        return Container();
     }
   }
 }
