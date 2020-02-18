@@ -82,7 +82,7 @@ class _PageState extends State<Page> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text('Drawer Header'),
+            child: Center(child:Text('Self Control', style:TextStyle(fontSize: 24, color: Colors.white))),
             decoration: BoxDecoration(
               color: Colors.blue,
             ),

@@ -40,57 +40,75 @@ class _AddFormState extends State<AddForm> {
     return Form(
         key: _formKey,
         child: Column(children: <Widget>[
-          TextFormField(
-            controller: titleController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.done), labelText: "목표"),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          DropdownButton<String>(
-            value: period,
-            underline: Container(
-              height: 2,
-              color: Colors.deepPurpleAccent,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal:16.0),
+            child: TextFormField(
+              controller: titleController,
+              decoration:
+                  InputDecoration(icon: Icon(Icons.done), labelText: "목표"),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
             ),
-            onChanged: (value) {
-              setState(() {
-                period = value;
-              });
-            },
-            items: <String>['주', '일']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
           ),
-          TextFormField(
-            controller: timesController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.history), labelText: "횟수"),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal:16.0),
+                  child: TextFormField(
+                    controller: timesController,
+                    decoration:
+                        InputDecoration(icon: Icon(Icons.history), labelText: "횟수"),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right:16.0),
+                child: DropdownButton<String>(
+                  value: period,
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      period = value;
+                    });
+                  },
+                  items: <String>['주', '일']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-          TextFormField(
-            controller: unitController,
-            decoration:
-                InputDecoration(icon: Icon(Icons.extension), labelText: "단위"),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal:16.0),
+            child: TextFormField(
+              controller: unitController,
+              decoration:
+                  InputDecoration(icon: Icon(Icons.extension), labelText: "단위"),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+            ),
           ),
           CheckboxListTile(
             secondary: Icon(Icons.thumb_up),
@@ -116,7 +134,7 @@ class _AddFormState extends State<AddForm> {
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
               }
             },
-            child: Text('Submit'),
+            child: Text('추가하기'),
           )
           // Add TextFormFields and RaisedButton here.
         ]));
