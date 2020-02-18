@@ -26,67 +26,130 @@ class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final nameController = TextEditingController();
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Column(children: <Widget>[
-          TextFormField(
-            controller: emailController,
+    return Form(key: _formKey, child: InputField());
+  }
+
+  Widget InputField() {
+    if (isLogin) {
+      return Column(children: <Widget>[
+        TextFormField(
+          controller: emailController,
+          decoration: InputDecoration(
+              icon: Icon(Icons.account_circle), labelText: "email"),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+          obscureText: true,
+          controller: passwordController,
+          decoration:
+              InputDecoration(icon: Icon(Icons.vpn_key), labelText: "password"),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+        RaisedButton(
+          onPressed: () {
+            if (_formKey.currentState.validate()) {
+              Auth.signIn(
+                  email: emailController.text,
+                  password: passwordController.text);
+              Scaffold.of(context)
+                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+            }
+          },
+          child: Text("로그인"),
+        ),
+        GestureDetector(
+            onTap: () {
+              Auth.resetPassword(emailController.text);
+            },
+            child: Text("비밀번호 찾기")),
+        GestureDetector(
+            onTap: () {
+              setState(() {
+                print(isLogin);
+                isLogin = !isLogin;
+              });
+            },
+            child: Text("회원가입하기"))
+      ]);
+    } else {
+      return Column(children: <Widget>[
+        TextFormField(
+          controller: emailController,
+          decoration: InputDecoration(
+              icon: Icon(Icons.account_circle), labelText: "email"),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+          obscureText: true,
+          controller: passwordController,
+          decoration:
+              InputDecoration(icon: Icon(Icons.vpn_key), labelText: "password"),
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter some text';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+            controller: nameController,
             decoration: InputDecoration(
-                icon: Icon(Icons.account_circle), labelText: "email"),
+                icon: Icon(Icons.perm_identity), labelText: "name"),
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter some text';
               }
               return null;
+            }),
+        RaisedButton(
+          onPressed: () {
+            if (_formKey.currentState.validate()) {
+              Auth.createUser(
+                  email: emailController.text,
+                  password: passwordController.text,
+                  name: nameController.text);
+              Scaffold.of(context)
+                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+            }
+          },
+          child: Text("회원가입"),
+        ),
+        GestureDetector(
+            onTap: () {
+              setState(() {
+                print(isLogin);
+                isLogin = !isLogin;
+              });
             },
-          ),
-          TextFormField(
-            obscureText: true,
-            controller: passwordController,
-            decoration: InputDecoration(
-                icon: Icon(Icons.vpn_key), labelText: "password"),
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          RaisedButton(
-            onPressed: () {
-              if (_formKey.currentState.validate()) {
-                if(isLogin){
-                  Auth.signIn(
-                      email: emailController.text,
-                      password: passwordController.text);
-                }
-                else {
-                  Auth.createUser(email:emailController.text, password:passwordController.text);
-                }
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text('Processing Data')));
-              }
-            },
-            child: Text(isLogin ? "로그인" : "회원가입"),
-          ),
-          GestureDetector(
-              onTap: () {
-                setState(() {
-                  print(isLogin);
-                  isLogin = !isLogin;
-                });
-              },
-              child: Text(isLogin ? "회원가입하기" : "로그인하기"))
-        ]));
+            child: Text("로그인하기"))
+      ]);
+    }
   }
 }
