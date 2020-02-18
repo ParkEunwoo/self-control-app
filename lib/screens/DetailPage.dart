@@ -35,7 +35,7 @@ class DetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
-        RemainingTime(),
+        RemainingTime(period:data['periodUnit']),
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -49,15 +49,24 @@ class DetailPage extends StatelessWidget {
 }
 
 class RemainingTime extends StatefulWidget {
+  String period;
+  RemainingTime({this.period});
+
   @override
-  _RemainingTimeState createState() => _RemainingTimeState();
+  _RemainingTimeState createState() => _RemainingTimeState(period);
 }
 class _RemainingTimeState extends State<RemainingTime> {
   DateTime now;
   DateTime goal;
-  _RemainingTimeState(){
+  String period;
+  _RemainingTimeState(String period){
+    this.period = period;
     now = DateTime.now();
-    goal = DateTime.utc(now.year, now.month, now.day+(now.weekday > 0 ? 7-now.weekday : 0), 23, 59, 59);
+    switch(period) {
+      case '주': goal = DateTime.utc(now.year, now.month, now.day+(now.weekday > 0 ? 7-now.weekday : 0), 23, 59, 59); break;
+      case '일':
+      default: goal=DateTime.utc(now.year, now.month, now.day, 23, 59, 59);
+    }
   }
   @override
   void initState() {
@@ -71,7 +80,11 @@ class _RemainingTimeState extends State<RemainingTime> {
   }
   @override
   Widget build(BuildContext context) {
-    return Text('${goal.day - now.day}일 ${goal.hour - now.hour}시간 ${goal.minute - now.minute}분 ${goal.second - now.second}초');
+    return Text('${week()}${goal.hour - now.hour}시간 ${goal.minute - now.minute}분 ${goal.second - now.second}초');
+  }
+  String week() {
+    if(period=='일') return '';
+    return '${goal.day - now.day}일';
   }
 }
 
