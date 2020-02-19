@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:self_control/data/plan.dart';
+import 'package:self_control/firebase/admob.dart';
 import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
@@ -36,43 +38,46 @@ class _PageState extends State<Page> {
 
   @override
   Widget build(BuildContext context) {
+    AdMob.instance.showBanner();
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("MainPage"),
-      ),
-      drawer: _buildDrawer(),
-      body: ListPage(page: page),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          switch (page) {
-            case FRIEND_PAGE:
-              String email = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddFriendPage()),
-              );
-              Provider.of<Store>(context, listen: false).addFriend(email);
-              break;
-            case GROUP_PAGE:
-              Plan plan = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddGroupPage()),
-              );
-              Provider.of<Store>(context, listen: false).addPlan(plan);
-              break;
-            case MAIN_PAGE:
-            default:
-              Plan plan = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddPlanPage()),
-              );
-              Provider.of<Store>(context, listen: false).addPlan(plan);
-              break;
-          }
-        },
-        tooltip: 'Add',
-        child: Icon(Icons.add),
-      ),
-    );
+        appBar: AppBar(
+          title: Text("MainPage"),
+        ),
+        drawer: _buildDrawer(),
+        body: ListPage(page: page),
+        floatingActionButton: Align(
+            child: FloatingActionButton(
+              onPressed: () async {
+                switch (page) {
+                  case FRIEND_PAGE:
+                    String email = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddFriendPage()),
+                    );
+                    Provider.of<Store>(context, listen: false).addFriend(email);
+                    break;
+                  case GROUP_PAGE:
+                    Plan plan = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddGroupPage()),
+                    );
+                    Provider.of<Store>(context, listen: false).addPlan(plan);
+                    break;
+                  case MAIN_PAGE:
+                  default:
+                    Plan plan = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddPlanPage()),
+                    );
+                    Provider.of<Store>(context, listen: false).addPlan(plan);
+                    break;
+                }
+              },
+              tooltip: 'Add',
+              child: Icon(Icons.add),
+            ),
+            alignment: Alignment(1, 0.7)));
   }
 
   Widget _buildDrawer() {
@@ -82,7 +87,9 @@ class _PageState extends State<Page> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Center(child:Text('Self Control', style:TextStyle(fontSize: 24, color: Colors.white))),
+            child: Center(
+                child: Text('Self Control',
+                    style: TextStyle(fontSize: 24, color: Colors.white))),
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
@@ -146,8 +153,8 @@ class ListPage extends StatelessWidget {
 
   ListPage({Key key, this.page}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
-      Function buildRow,
+  Widget _buildList(
+      BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow,
       {CollectionReference reference}) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -189,10 +196,13 @@ class ListPage extends StatelessWidget {
       return ListTile(
           leading: Icon(Icons.person),
           title: Text(friend['name']),
-          trailing: IconButton(icon: Icon(Icons.delete), onPressed: () {
-            removeFriend(friend.documentID);
-          }));
+          trailing: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                removeFriend(friend.documentID);
+              }));
     }
+
     return buildRow;
   }
 
@@ -201,10 +211,7 @@ class ListPage extends StatelessWidget {
     switch (page) {
       case MAIN_PAGE:
         return StreamBuilder<QuerySnapshot>(
-          stream: Provider
-              .of<Store>(context)
-              .plans
-              .snapshots(),
+          stream: Provider.of<Store>(context).plans.snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
@@ -213,18 +220,13 @@ class ListPage extends StatelessWidget {
                 return LinearProgressIndicator();
               default:
                 return _buildList(context, snapshot.data.documents, _buildPlan,
-                    reference: Provider
-                        .of<Store>(context)
-                        .plans);
+                    reference: Provider.of<Store>(context).plans);
             }
           },
         );
       case FRIEND_PAGE:
         return StreamBuilder<QuerySnapshot>(
-          stream: Provider
-              .of<Store>(context)
-              .friends
-              .snapshots(),
+          stream: Provider.of<Store>(context).friends.snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
@@ -232,8 +234,8 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return _buildList(
-                    context, snapshot.data.documents, _buildFriend(Provider.of<Store>(context).removeFriend));
+                return _buildList(context, snapshot.data.documents,
+                    _buildFriend(Provider.of<Store>(context).removeFriend));
             }
           },
         );
