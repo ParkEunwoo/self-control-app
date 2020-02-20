@@ -174,7 +174,7 @@ class ListPage extends StatelessWidget {
     if (plan['goalDate'] != null) {
       if (DateTime.now().isAfter(plan['goalDate'].toDate())) {
         reference.document(plan.documentID).updateData(
-            {"goalDate": Store.getGoalTime(plan['period']), "now": 0});
+            {"goalDate": Timestamp.fromDate(Store.getGoalTime(plan['period'])), "now": 0});
       }
     }
     return ListTile(
