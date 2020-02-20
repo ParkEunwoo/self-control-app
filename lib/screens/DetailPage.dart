@@ -27,13 +27,15 @@ class DetailPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return Content(context, snapshot.data);
+                return Content(
+                    context, snapshot.data, plan.collection('archives'));
             }
           },
         ));
   }
 
-  Widget Content(BuildContext context, DocumentSnapshot data) {
+  Widget Content(BuildContext context, DocumentSnapshot data,
+      CollectionReference archives) {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
@@ -47,7 +49,8 @@ class DetailPage extends StatelessWidget {
         Calendar(
             startDate: data['startDate'].toDate(),
             period: data['period'],
-            times: data['times'])
+            times: data['times'],
+            archives: archives)
       ],
     );
   }
@@ -108,30 +111,35 @@ class Calendar extends StatefulWidget {
   DateTime startDate;
   String period;
   int times;
+  CollectionReference archives;
 
-  Calendar({this.startDate, this.period, this.times});
+  Calendar({this.startDate, this.period, this.times, this.archives});
 
   @override
-  _CalendarState createState() =>
-      _CalendarState(startDate: startDate, period: period, times: times);
+  _CalendarState createState() => _CalendarState(
+      startDate: startDate, period: period, times: times, archives: archives);
 }
 
 class _CalendarState extends State<Calendar> {
-  CalendarController _calendarController = CalendarController();
+  CalendarController _calendarController;
   TextEditingController _eventController;
   Map<DateTime, List<int>> _events;
   DateTime startDate;
   String period;
   int times;
+  CollectionReference archives;
 
-  _CalendarState({this.startDate, this.period, this.times}) {
+  _CalendarState({this.startDate, this.period, this.times, this.archives}) {
     _events = {};
-    List<DateTime> list = List<DateTime>.generate(DateTime.now().difference(startDate).inDays, (index) => DateTime.utc(startDate.year, startDate.month, startDate.day, 12).add(Duration(days:index)));
+    List<DateTime> list = List<DateTime>.generate(
+        DateTime.now().difference(startDate).inDays,
+        (index) =>
+            DateTime.parse('${startDate.toString().substring(0, 10)} 12')
+                .add(Duration(days: index)));
 
-    list.forEach((date){
+    list.forEach((date) {
       _events[date] = [0];
     });
-
   }
 
   @override
@@ -143,6 +151,29 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: archives.snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return LinearProgressIndicator();
+          default:
+            setEvents(snapshot.data.documents);
+            return _buildCalendar(context);
+        }
+      },
+    );
+  }
+
+  void setEvents(List<DocumentSnapshot> dates) {
+    dates.forEach((snapshot) {
+      DateTime date = DateTime.parse(snapshot.documentID);
+      _events[date] = [snapshot['amount']];
+    });
+  }
+
+  Widget _buildCalendar(BuildContext context) {
     return TableCalendar(
         calendarController: _calendarController,
         startingDayOfWeek: StartingDayOfWeek.monday,
@@ -150,29 +181,29 @@ class _CalendarState extends State<Calendar> {
           showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                content: TextField(
-                  controller: _eventController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    WhitelistingTextInputFormatter.digitsOnly
-                  ],
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text("Save"),
-                    onPressed: (){
-                      print(date);
-                      if(_eventController.text.isEmpty) return;
-                      setState(() {
-                        _events[date] = [int.parse(_eventController.text)];
-                        _eventController.clear();
-                        Navigator.pop(context);
-                      });
-                    },
-                  )
-                ],
-              )
-          );
+                    content: TextField(
+                      controller: _eventController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter.digitsOnly
+                      ],
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Save"),
+                        onPressed: () {
+                          if (_eventController.text.isEmpty) return;
+                          archives
+                              .document(date.toString().substring(0, 13))
+                              .setData(
+                                  {"amount": int.parse(_eventController.text)});
+
+                          _eventController.clear();
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ));
         },
         builders: CalendarBuilders(
           selectedDayBuilder: (context, date, events) => Container(
@@ -199,9 +230,11 @@ class _CalendarState extends State<Calendar> {
             final children = <Widget>[];
             if (events.isNotEmpty) {
               children.add(Container(
-                child: Center(
-                    child: Text('${events.last}',
-                        style: TextStyle(color: Colors.white))),
+                child: events.last == 0
+                    ? null
+                    : Center(
+                        child: Text('${events.last}',
+                            style: TextStyle(color: Colors.white))),
                 decoration: BoxDecoration(
                     color: isSuccess() ? Colors.lightBlue : Colors.deepOrange),
                 height: 16.0,
@@ -217,11 +250,11 @@ class _CalendarState extends State<Calendar> {
   bool isSuccess() {
     return true;
   }
-/*
+
   @override
   void dispose() {
     _calendarController.dispose();
     _eventController.dispose();
     super.dispose();
-  }*/
+  }
 }
