@@ -38,7 +38,8 @@ class DetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
-        RemainingTime(period: data['period'], goal: data['goalDate'].toDate()),
+        RemainingTime(
+            period: data['period'], goal: DateTime.parse(data['goalDate'])),
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -46,7 +47,7 @@ class DetailPage extends StatelessWidget {
               Text("${data['now']}/${data['times']}${data['timesUnit']}"),
             ]),
         Calendar(
-            startDate: data['startDate'].toDate(),
+            startDate: data['startDate'],
             period: data['period'],
             times: data['times'],
             now: data['now'],
@@ -63,7 +64,8 @@ class RemainingTime extends StatefulWidget {
   RemainingTime({this.period, this.goal});
 
   @override
-  _RemainingTimeState createState() => _RemainingTimeState(period:period, goal:goal);
+  _RemainingTimeState createState() =>
+      _RemainingTimeState(period: period, goal: goal);
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
@@ -97,7 +99,7 @@ class _RemainingTimeState extends State<RemainingTime> {
 }
 
 class Calendar extends StatefulWidget {
-  DateTime startDate;
+  String startDate;
   String period;
   int times;
   int now;
@@ -114,7 +116,7 @@ class _CalendarState extends State<Calendar> {
   CalendarController _calendarController;
   TextEditingController _eventController;
   Map<DateTime, List<dynamic>> _events;
-  DateTime startDate;
+  String startDate;
   String period;
   int times;
   int now;
@@ -126,9 +128,8 @@ class _CalendarState extends State<Calendar> {
     archives = plan.collection('archives');
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
-        DateTime.now().difference(startDate).inDays,
-        (index) => DateTime.parse('${startDate.toString().substring(0, 10)} 12')
-            .add(Duration(days: index)));
+        DateTime.now().difference(DateTime.parse(startDate)).inDays,
+        (index) => DateTime.parse('$startDate 12').add(Duration(days: index)));
 
     list.forEach((date) {
       _events[date] = [0, true];
@@ -162,7 +163,7 @@ class _CalendarState extends State<Calendar> {
   void setEvents(List<DocumentSnapshot> dates) {
     dates.forEach((snapshot) {
       DateTime date = DateTime.parse(snapshot.documentID);
-      if(snapshot['amount'] != null){
+      if (snapshot['amount'] != null) {
         _events[date] = [snapshot['amount'], snapshot['success']];
       } else {
         _events[date] = [0, snapshot['success']];
@@ -175,42 +176,46 @@ class _CalendarState extends State<Calendar> {
         calendarController: _calendarController,
         startingDayOfWeek: StartingDayOfWeek.monday,
         onDaySelected: (date, events) {
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                    content: TextField(
-                      controller: _eventController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        WhitelistingTextInputFormatter.digitsOnly
-                      ],
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text("Save"),
-                        onPressed: () {
-                          if (_eventController.text.isEmpty) return;
-                          int amount = int.parse(_eventController.text);
-                          now += amount;
-                          plan.updateData({'now': now});
-                          archives
-                              .document(date.toString().substring(0, 13))
-                              .setData({"amount": amount, 'success': true});
-                          if (now > times) {
-                            DateTime startWeek =
-                                date.subtract(Duration(days: date.weekday - 1));
-                            for(int i = 0; i<7;i++) {
-                              archives
-                                  .document('${startWeek.add(Duration(days:i)).toString().substring(0, 10)} 12')
-                                  .updateData({'success': false});
+          if (!date.isAfter(DateTime.now())) {
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: Text('입력'),
+                      content: TextField(
+                        controller: _eventController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          WhitelistingTextInputFormatter.digitsOnly
+                        ],
+                      ),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text("Save"),
+                          onPressed: () {
+                            if (_eventController.text.isEmpty) return;
+                            int amount = int.parse(_eventController.text);
+                            now += amount;
+                            plan.updateData({'now': now});
+                            archives
+                                .document(date.toString().substring(0, 13))
+                                .setData({"amount": amount, 'success': true});
+                            if (now > times) {
+                              DateTime startWeek = date
+                                  .subtract(Duration(days: date.weekday - 1));
+                              for (int i = 0; i < 7; i++) {
+                                archives
+                                    .document(
+                                        '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
+                                    .updateData({'success': false});
+                              }
                             }
-                          }
-                          _eventController.clear();
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                  ));
+                            _eventController.clear();
+                            Navigator.pop(context);
+                          },
+                        )
+                      ],
+                    ));
+          }
         },
         builders: CalendarBuilders(
           selectedDayBuilder: (context, date, events) => Container(

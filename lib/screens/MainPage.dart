@@ -172,9 +172,9 @@ class ListPage extends StatelessWidget {
   Widget _buildPlan(BuildContext context, DocumentSnapshot plan,
       {CollectionReference reference}) {
     if (plan['goalDate'] != null) {
-      if (DateTime.now().isAfter(plan['goalDate'].toDate())) {
+      if (DateTime.now().isAfter(DateTime.parse(plan['goalDate']))) {
         reference.document(plan.documentID).updateData(
-            {"goalDate": Timestamp.fromDate(Store.getGoalTime(plan['period'])), "now": 0});
+            {"goalDate": '${Store.getGoalTime(plan['period'])}', "now": 0});
       }
     }
     return ListTile(

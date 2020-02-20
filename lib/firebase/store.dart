@@ -19,11 +19,11 @@ class Store with ChangeNotifier {
     DateTime now = DateTime.now();
     switch (period) {
       case '주':
-        return DateTime.utc(now.year, now.month,
+        return DateTime(now.year, now.month,
             now.day + (now.weekday > 0 ? 7 - now.weekday : 0), 23, 59, 59);
       case '일':
       default:
-        return DateTime.utc(now.year, now.month, now.day, 23, 59, 59);
+        return DateTime(now.year, now.month, now.day, 23, 59, 59);
     }
   }
   void addPlan(Plan plan) async {
@@ -34,8 +34,8 @@ class Store with ChangeNotifier {
       "timesUnit": plan.timesUnit,
       "now": 0,
       "isPositive": plan.isPositive,
-      "startDate": Timestamp.now(),
-      "goalDate": Timestamp.fromDate(getGoalTime(plan.period))
+      "startDate": '${DateTime.now().toString().substring(0, 10)} 12',
+      "goalDate": '${getGoalTime(plan.period)}'
     });
     notifyListeners();
   }
