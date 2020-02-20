@@ -202,6 +202,7 @@ class ListPage extends StatelessWidget {
       return ListTile(
           leading: Icon(Icons.person),
           title: Text(friend['name']),
+          subtitle: Text(friend['email']),
           trailing: IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
