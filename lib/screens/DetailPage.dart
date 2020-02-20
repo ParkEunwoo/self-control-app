@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:flutter/services.dart';
 import 'package:self_control/firebase/admob.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -117,22 +118,27 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   CalendarController _calendarController = CalendarController();
+  TextEditingController _eventController;
   Map<DateTime, List<int>> _events;
   DateTime startDate;
   String period;
   int times;
 
-  _CalendarState({this.startDate, this.period, this.times});
+  _CalendarState({this.startDate, this.period, this.times}) {
+    _events = {};
+    List<DateTime> list = List<DateTime>.generate(DateTime.now().difference(startDate).inDays, (index) => DateTime.utc(startDate.year, startDate.month, startDate.day, 12).add(Duration(days:index)));
+
+    list.forEach((date){
+      _events[date] = [0];
+    });
+
+  }
 
   @override
   void initState() {
     super.initState();
     _calendarController = CalendarController();
-    _events = {};
-    List<DateTime> list = List<DateTime>.generate(DateTime.now().difference(startDate).inDays, (index) => startDate.add(Duration(days:index)));
-    list.forEach((date){
-      _events[date] = [0];
-    });
+    _eventController = TextEditingController();
   }
 
   @override
@@ -141,9 +147,32 @@ class _CalendarState extends State<Calendar> {
         calendarController: _calendarController,
         startingDayOfWeek: StartingDayOfWeek.monday,
         onDaySelected: (date, events) {
-          setState(() {
-            _events[date] = [3];
-          });
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                content: TextField(
+                  controller: _eventController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    WhitelistingTextInputFormatter.digitsOnly
+                  ],
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("Save"),
+                    onPressed: (){
+                      print(date);
+                      if(_eventController.text.isEmpty) return;
+                      setState(() {
+                        _events[date] = [int.parse(_eventController.text)];
+                        _eventController.clear();
+                        Navigator.pop(context);
+                      });
+                    },
+                  )
+                ],
+              )
+          );
         },
         builders: CalendarBuilders(
           selectedDayBuilder: (context, date, events) => Container(
@@ -168,21 +197,10 @@ class _CalendarState extends State<Calendar> {
               )),
           markersBuilder: (context, date, events, holidays) {
             final children = <Widget>[];
-
-            if (!startDate.isAfter(date)) {
-              children.add(Container(
-                child: Center(
-                    child: Text('${events[0]}',
-                        style: TextStyle(color: Colors.white))),
-                decoration: BoxDecoration(
-                    color: isSuccess() ? Colors.lightBlue : Colors.deepOrange),
-                height: 16.0,
-              ));
-            }
             if (events.isNotEmpty) {
               children.add(Container(
                 child: Center(
-                    child: Text('${events[0]}',
+                    child: Text('${events.last}',
                         style: TextStyle(color: Colors.white))),
                 decoration: BoxDecoration(
                     color: isSuccess() ? Colors.lightBlue : Colors.deepOrange),
@@ -199,10 +217,11 @@ class _CalendarState extends State<Calendar> {
   bool isSuccess() {
     return true;
   }
-
+/*
   @override
   void dispose() {
     _calendarController.dispose();
+    _eventController.dispose();
     super.dispose();
-  }
+  }*/
 }
