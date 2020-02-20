@@ -27,19 +27,18 @@ class DetailPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return Content(
-                    context, snapshot.data, plan.collection('archives'));
+                return Content(context, snapshot.data, plan);
             }
           },
         ));
   }
 
-  Widget Content(BuildContext context, DocumentSnapshot data,
-      CollectionReference archives) {
+  Widget Content(
+      BuildContext context, DocumentSnapshot data, DocumentReference plan) {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
-        RemainingTime(period: data['period']),
+        RemainingTime(period: data['period'], goal: data['goalDate'].toDate()),
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -50,7 +49,8 @@ class DetailPage extends StatelessWidget {
             startDate: data['startDate'].toDate(),
             period: data['period'],
             times: data['times'],
-            archives: archives)
+            now: data['now'],
+            plan: plan)
       ],
     );
   }
@@ -58,11 +58,12 @@ class DetailPage extends StatelessWidget {
 
 class RemainingTime extends StatefulWidget {
   String period;
+  DateTime goal;
 
-  RemainingTime({this.period});
+  RemainingTime({this.period, this.goal});
 
   @override
-  _RemainingTimeState createState() => _RemainingTimeState(period);
+  _RemainingTimeState createState() => _RemainingTimeState(period:period, goal:goal);
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
@@ -70,19 +71,7 @@ class _RemainingTimeState extends State<RemainingTime> {
   DateTime goal;
   String period;
 
-  _RemainingTimeState(String period) {
-    this.period = period;
-    now = DateTime.now();
-    switch (period) {
-      case '주':
-        goal = DateTime.utc(now.year, now.month,
-            now.day + (now.weekday > 0 ? 7 - now.weekday : 0), 23, 59, 59);
-        break;
-      case '일':
-      default:
-        goal = DateTime.utc(now.year, now.month, now.day, 23, 59, 59);
-    }
-  }
+  _RemainingTimeState({this.period, this.goal});
 
   @override
   void initState() {
@@ -111,34 +100,38 @@ class Calendar extends StatefulWidget {
   DateTime startDate;
   String period;
   int times;
-  CollectionReference archives;
+  int now;
+  DocumentReference plan;
 
-  Calendar({this.startDate, this.period, this.times, this.archives});
+  Calendar({this.startDate, this.period, this.times, this.now, this.plan});
 
   @override
   _CalendarState createState() => _CalendarState(
-      startDate: startDate, period: period, times: times, archives: archives);
+      startDate: startDate, period: period, times: times, now: now, plan: plan);
 }
 
 class _CalendarState extends State<Calendar> {
   CalendarController _calendarController;
   TextEditingController _eventController;
-  Map<DateTime, List<int>> _events;
+  Map<DateTime, List<dynamic>> _events;
   DateTime startDate;
   String period;
   int times;
+  int now;
+  DocumentReference plan;
   CollectionReference archives;
 
-  _CalendarState({this.startDate, this.period, this.times, this.archives}) {
+  _CalendarState(
+      {this.startDate, this.period, this.times, this.now, this.plan}) {
+    archives = plan.collection('archives');
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
         DateTime.now().difference(startDate).inDays,
-        (index) =>
-            DateTime.parse('${startDate.toString().substring(0, 10)} 12')
-                .add(Duration(days: index)));
+        (index) => DateTime.parse('${startDate.toString().substring(0, 10)} 12')
+            .add(Duration(days: index)));
 
     list.forEach((date) {
-      _events[date] = [0];
+      _events[date] = [0, true];
     });
   }
 
@@ -169,7 +162,11 @@ class _CalendarState extends State<Calendar> {
   void setEvents(List<DocumentSnapshot> dates) {
     dates.forEach((snapshot) {
       DateTime date = DateTime.parse(snapshot.documentID);
-      _events[date] = [snapshot['amount']];
+      if(snapshot['amount'] != null){
+        _events[date] = [snapshot['amount'], snapshot['success']];
+      } else {
+        _events[date] = [0, snapshot['success']];
+      }
     });
   }
 
@@ -193,11 +190,21 @@ class _CalendarState extends State<Calendar> {
                         child: Text("Save"),
                         onPressed: () {
                           if (_eventController.text.isEmpty) return;
+                          int amount = int.parse(_eventController.text);
+                          now += amount;
+                          plan.updateData({'now': now});
                           archives
                               .document(date.toString().substring(0, 13))
-                              .setData(
-                                  {"amount": int.parse(_eventController.text)});
-
+                              .setData({"amount": amount, 'success': true});
+                          if (now > times) {
+                            DateTime startWeek =
+                                date.subtract(Duration(days: date.weekday - 1));
+                            for(int i = 0; i<7;i++) {
+                              archives
+                                  .document('${startWeek.add(Duration(days:i)).toString().substring(0, 10)} 12')
+                                  .updateData({'success': false});
+                            }
+                          }
                           _eventController.clear();
                           Navigator.pop(context);
                         },
@@ -230,13 +237,13 @@ class _CalendarState extends State<Calendar> {
             final children = <Widget>[];
             if (events.isNotEmpty) {
               children.add(Container(
-                child: events.last == 0
+                child: events.first == 0
                     ? null
                     : Center(
-                        child: Text('${events.last}',
+                        child: Text('${events.first}',
                             style: TextStyle(color: Colors.white))),
                 decoration: BoxDecoration(
-                    color: isSuccess() ? Colors.lightBlue : Colors.deepOrange),
+                    color: events.last ? Colors.lightBlue : Colors.deepOrange),
                 height: 16.0,
               ));
             }
@@ -245,10 +252,6 @@ class _CalendarState extends State<Calendar> {
           },
         ),
         events: _events);
-  }
-
-  bool isSuccess() {
-    return true;
   }
 
   @override

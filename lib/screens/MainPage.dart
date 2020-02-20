@@ -171,6 +171,12 @@ class ListPage extends StatelessWidget {
 
   Widget _buildPlan(BuildContext context, DocumentSnapshot plan,
       {CollectionReference reference}) {
+    if (plan['goalDate'] != null) {
+      if (DateTime.now().isAfter(plan['goalDate'].toDate())) {
+        reference.document(plan.documentID).updateData(
+            {"goalDate": Store.getGoalTime(plan['period']), "now": 0});
+      }
+    }
     return ListTile(
       onTap: () {
         Navigator.push(
