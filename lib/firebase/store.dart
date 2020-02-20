@@ -22,7 +22,8 @@ class Store with ChangeNotifier {
       "times": plan.times,
       "timesUnit": plan.timesUnit,
       "now": 0,
-      "isPositive": plan.isPositive
+      "isPositive": plan.isPositive,
+      "startDate": Timestamp.now()
     });
     notifyListeners();
   }

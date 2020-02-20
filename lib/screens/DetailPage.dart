@@ -43,7 +43,10 @@ class DetailPage extends StatelessWidget {
               Text('1${data['period']}'),
               Text("${data['now']}/${data['times']}${data['timesUnit']}"),
             ]),
-        Calendar()
+        Calendar(
+            startDate: data['startDate'].toDate(),
+            period: data['period'],
+            times: data['times'])
       ],
     );
   }
@@ -101,19 +104,35 @@ class _RemainingTimeState extends State<RemainingTime> {
 }
 
 class Calendar extends StatefulWidget {
+  DateTime startDate;
+  String period;
+  int times;
+
+  Calendar({this.startDate, this.period, this.times});
+
   @override
-  _CalendarState createState() => _CalendarState();
+  _CalendarState createState() =>
+      _CalendarState(startDate: startDate, period: period, times: times);
 }
 
 class _CalendarState extends State<Calendar> {
   CalendarController _calendarController = CalendarController();
   Map<DateTime, List<int>> _events;
+  DateTime startDate;
+  String period;
+  int times;
+
+  _CalendarState({this.startDate, this.period, this.times});
 
   @override
   void initState() {
     super.initState();
     _calendarController = CalendarController();
     _events = {};
+    List<DateTime> list = List<DateTime>.generate(DateTime.now().difference(startDate).inDays, (index) => startDate.add(Duration(days:index)));
+    list.forEach((date){
+      _events[date] = [0];
+    });
   }
 
   @override
@@ -150,6 +169,16 @@ class _CalendarState extends State<Calendar> {
           markersBuilder: (context, date, events, holidays) {
             final children = <Widget>[];
 
+            if (!startDate.isAfter(date)) {
+              children.add(Container(
+                child: Center(
+                    child: Text('${events[0]}',
+                        style: TextStyle(color: Colors.white))),
+                decoration: BoxDecoration(
+                    color: isSuccess() ? Colors.lightBlue : Colors.deepOrange),
+                height: 16.0,
+              ));
+            }
             if (events.isNotEmpty) {
               children.add(Container(
                 child: Center(
