@@ -200,21 +200,28 @@ class _CalendarState extends State<Calendar> {
                           onPressed: () {
                             if (_eventController.text.isEmpty) return;
                             int amount = int.parse(_eventController.text);
-                            now += amount;
-                            plan.updateData({'now': now});
-                            archives
-                                .document(date.toString().substring(0, 13))
-                                .setData({"amount": amount, 'success': !isPositive});
-                            if ((!isPositive && now > times) || (isPositive && now >= times)) {
-                              DateTime startWeek = date
-                                  .subtract(Duration(days: date.weekday - 1));
-                              for (int i = 0; i < 7; i++) {
-                                archives
-                                    .document(
-                                        '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
-                                    .updateData({'success': isPositive});
+                            if(period == '주'){
+                              now += amount;
+                              archives
+                                  .document(date.toString().substring(0, 13))
+                                  .setData({"amount": amount, 'success': !isPositive});
+                              if ((!isPositive && now > times) || (isPositive && now >= times)) {
+                                DateTime startWeek = date
+                                    .subtract(Duration(days: date.weekday - 1));
+                                for (int i = 0; i < 7; i++) {
+                                  archives
+                                      .document(
+                                      '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
+                                      .updateData({'success': isPositive});
+                                }
                               }
+                            } else {
+                              now = amount;
+                              archives
+                                  .document(date.toString().substring(0, 13))
+                                  .setData({"amount": amount, 'success': isSuccess()});
                             }
+                            plan.updateData({'now': now});
                             _eventController.clear();
                             Navigator.pop(context);
                           },
@@ -265,6 +272,15 @@ class _CalendarState extends State<Calendar> {
         events: _events);
   }
 
+  bool isSuccess(){
+    if(!isPositive && now > times){
+      return false;
+    } else if(isPositive && now < times) {
+      return false;
+    } else {
+      return true;
+    }
+  }
   @override
   void dispose() {
     _calendarController.dispose();
