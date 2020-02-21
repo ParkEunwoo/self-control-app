@@ -150,7 +150,7 @@ class _CalendarState extends State<Calendar> {
 
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
-        DateTime.now().difference(DateTime.parse(startDate)).inDays,
+        DateTime.now().difference(DateTime.parse(startDate)).inDays + 1,
         (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
     list.forEach((date) {
@@ -219,7 +219,7 @@ class _CalendarState extends State<Calendar> {
                         if (_eventController.text.isEmpty) return;
                         int amount = int.parse(_eventController.text);
                         if (period == '주') {
-                          now += amount;
+                          now += amount - _events[date].first;
                           archives
                               .document(date.toString().substring(0, 13))
                               .setData(
