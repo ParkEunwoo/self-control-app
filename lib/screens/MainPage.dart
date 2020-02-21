@@ -196,21 +196,42 @@ class ListPage extends StatelessWidget {
     );
   }
 
-  Function _buildFriend(Function removeFriend) {
+  Function _buildFriend(Function removeFriend, Function acceptFriend) {
     Widget buildRow(BuildContext context, DocumentSnapshot friend,
         {CollectionReference reference}) {
       return ListTile(
           leading: Icon(Icons.person),
           title: Text(friend['name']),
           subtitle: Text(friend['email']),
-          trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                removeFriend(friend.documentID);
-              }));
+          trailing: friendStatus(
+              friend['status'], friend.documentID, removeFriend, acceptFriend));
     }
 
     return buildRow;
+  }
+
+  Widget friendStatus(
+      String status, String id, Function removeFriend, Function acceptFriend) {
+    switch (status) {
+      case 'request':
+        return FlatButton(onPressed: null, child: Text('요청 보냄', style:TextStyle(fontSize: 12)));
+      case 'respond':
+        return FlatButton(
+            child: Text('수락 하기', style:TextStyle(fontSize: 12)),
+            textTheme: ButtonTextTheme.primary,
+            color: Colors.primaries[5],
+            shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: () {
+              acceptFriend(id);
+            });
+      case 'accepted':
+      default:
+        return IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              removeFriend(id);
+            });
+    }
   }
 
   @override
@@ -226,8 +247,10 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return snapshot.hasData ? _buildList(context, snapshot.data.documents, _buildPlan,
-                    reference: Provider.of<Store>(context).plans) : Container();
+                return snapshot.hasData
+                    ? _buildList(context, snapshot.data.documents, _buildPlan,
+                        reference: Provider.of<Store>(context).plans)
+                    : Container();
             }
           },
         );
@@ -241,8 +264,13 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return CircularProgressIndicator();
               default:
-                return snapshot.hasData ? _buildList(context, snapshot.data.documents,
-                    _buildFriend(Provider.of<Store>(context).removeFriend)): Container();
+                return snapshot.hasData
+                    ? _buildList(
+                        context,
+                        snapshot.data.documents,
+                        _buildFriend(Provider.of<Store>(context).removeFriend,
+                            Provider.of<Store>(context).acceptFriend))
+                    : Container();
             }
           },
         );

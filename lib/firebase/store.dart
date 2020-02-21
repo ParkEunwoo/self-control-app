@@ -8,11 +8,17 @@ class Store with ChangeNotifier {
   DocumentReference user;
   CollectionReference plans;
   CollectionReference friends;
+  String _email;
+  String _name;
 
   Store(String uid) {
     user = Users.document(uid);
     plans = user.collection('plans');
     friends = user.collection('friends');
+    user.get().then((DocumentSnapshot ds) {
+      _email = ds['email'];
+      _name = ds['name'];
+    });
   }
 
   static DateTime getGoalTime(String period) {
@@ -46,10 +52,17 @@ class Store with ChangeNotifier {
         .snapshots()
         .listen((onData) => onData.documents
         .forEach((doc) {
-              friends.add({"email": email, "name": doc['name']});
+              friends.document(doc.documentID).setData({"email": email, "name": doc['name'], "status": "request"});
+              Users.document(doc.documentID).collection('friends').document(user.documentID).setData({"email":_email,"name":_name, "status": "respond"});
             }));
     notifyListeners();
   }
+
+  void acceptFriend(String id) {
+    friends.document(id).updateData({"status": "accepted"});
+    Users.document(id).collection('friends').document(user.documentID).updateData({"status":"accepted"});
+  }
+
 
   void removeFriend(String id) {
     friends.document(id).delete();
