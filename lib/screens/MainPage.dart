@@ -55,14 +55,17 @@ class _PageState extends State<Page> {
                       context,
                       MaterialPageRoute(builder: (context) => AddFriendPage()),
                     );
-                    Provider.of<Store>(context, listen: false).addFriend(email);
+                    if(email != null){
+                      Provider.of<Store>(context, listen: false).addFriend(email);
+                    }
+
                     break;
                   case GROUP_PAGE:
-                    Plan plan = await Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => AddGroupPage()),
                     );
-                    Provider.of<Store>(context, listen: false).addPlan(plan);
+
                     break;
                   case MAIN_PAGE:
                   default:
@@ -70,7 +73,9 @@ class _PageState extends State<Page> {
                       context,
                       MaterialPageRoute(builder: (context) => AddPlanPage()),
                     );
-                    Provider.of<Store>(context, listen: false).addPlan(plan);
+                    if(plan != null) {
+                      Provider.of<Store>(context, listen: false).addPlan(plan);
+                    }
                     break;
                 }
               },
