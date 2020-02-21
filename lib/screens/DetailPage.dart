@@ -51,6 +51,7 @@ class DetailPage extends StatelessWidget {
             period: data['period'],
             times: data['times'],
             now: data['now'],
+            isPositive: data['isPositive'],
             plan: plan)
       ],
     );
@@ -103,13 +104,14 @@ class Calendar extends StatefulWidget {
   String period;
   int times;
   int now;
+  bool isPositive;
   DocumentReference plan;
 
-  Calendar({this.startDate, this.period, this.times, this.now, this.plan});
+  Calendar({this.startDate, this.period, this.times, this.now, this.isPositive, this.plan});
 
   @override
   _CalendarState createState() => _CalendarState(
-      startDate: startDate, period: period, times: times, now: now, plan: plan);
+      startDate: startDate, period: period, times: times, now: now, isPositive:isPositive, plan: plan);
 }
 
 class _CalendarState extends State<Calendar> {
@@ -120,11 +122,15 @@ class _CalendarState extends State<Calendar> {
   String period;
   int times;
   int now;
+  bool isPositive;
   DocumentReference plan;
   CollectionReference archives;
 
   _CalendarState(
-      {this.startDate, this.period, this.times, this.now, this.plan}) {
+      {this.startDate, this.period, this.times, this.now, this.isPositive, this.plan}) {
+    print('-----------------------');
+    print(isPositive);
+    print('-----------------------');
     archives = plan.collection('archives');
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
@@ -132,7 +138,7 @@ class _CalendarState extends State<Calendar> {
         (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
     list.forEach((date) {
-      _events[date] = [0, true];
+      _events[date] = [0, !isPositive];
     });
   }
 
@@ -198,15 +204,15 @@ class _CalendarState extends State<Calendar> {
                             plan.updateData({'now': now});
                             archives
                                 .document(date.toString().substring(0, 13))
-                                .setData({"amount": amount, 'success': true});
-                            if (now > times) {
+                                .setData({"amount": amount, 'success': !isPositive});
+                            if ((!isPositive && now > times) || (isPositive && now >= times)) {
                               DateTime startWeek = date
                                   .subtract(Duration(days: date.weekday - 1));
                               for (int i = 0; i < 7; i++) {
                                 archives
                                     .document(
                                         '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
-                                    .updateData({'success': false});
+                                    .updateData({'success': isPositive});
                               }
                             }
                             _eventController.clear();
