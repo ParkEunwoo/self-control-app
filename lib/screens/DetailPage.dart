@@ -23,7 +23,6 @@ class DetailPage extends StatelessWidget {
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
                 return CircularProgressIndicator();
@@ -70,7 +69,7 @@ class RemainingTime extends StatefulWidget {
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
-  DateTime now;
+  DateTime now = DateTime.now();
   DateTime goal;
   String period;
 
@@ -130,7 +129,7 @@ class _CalendarState extends State<Calendar> {
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
         DateTime.now().difference(DateTime.parse(startDate)).inDays,
-        (index) => DateTime.parse('$startDate 12').add(Duration(days: index)));
+        (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
     list.forEach((date) {
       _events[date] = [0, true];
