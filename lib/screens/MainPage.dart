@@ -226,8 +226,8 @@ class ListPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return LinearProgressIndicator();
               default:
-                return _buildList(context, snapshot.data.documents, _buildPlan,
-                    reference: Provider.of<Store>(context).plans);
+                return snapshot.hasData ? _buildList(context, snapshot.data.documents, _buildPlan,
+                    reference: Provider.of<Store>(context).plans) : Container();
             }
           },
         );
@@ -239,10 +239,10 @@ class ListPage extends StatelessWidget {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return LinearProgressIndicator();
+                return CircularProgressIndicator();
               default:
-                return _buildList(context, snapshot.data.documents,
-                    _buildFriend(Provider.of<Store>(context).removeFriend));
+                return snapshot.hasData ? _buildList(context, snapshot.data.documents,
+                    _buildFriend(Provider.of<Store>(context).removeFriend)): Container();
             }
           },
         );

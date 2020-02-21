@@ -23,11 +23,12 @@ class DetailPage extends StatelessWidget {
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return LinearProgressIndicator();
+                return CircularProgressIndicator();
               default:
-                return Content(context, snapshot.data, plan);
+                return snapshot.hasData ? Content(context, snapshot.data, plan) : Container();
             }
           },
         ));
