@@ -27,7 +27,9 @@ class DetailPage extends StatelessWidget {
               case ConnectionState.waiting:
                 return CircularProgressIndicator();
               default:
-                return snapshot.hasData ? Content(context, snapshot.data, plan) : Container();
+                return snapshot.hasData
+                    ? Content(context, snapshot.data, plan)
+                    : Container();
             }
           },
         ));
@@ -107,11 +109,22 @@ class Calendar extends StatefulWidget {
   bool isPositive;
   DocumentReference plan;
 
-  Calendar({this.startDate, this.period, this.times, this.now, this.isPositive, this.plan});
+  Calendar(
+      {this.startDate,
+      this.period,
+      this.times,
+      this.now,
+      this.isPositive,
+      this.plan});
 
   @override
   _CalendarState createState() => _CalendarState(
-      startDate: startDate, period: period, times: times, now: now, isPositive:isPositive, plan: plan);
+      startDate: startDate,
+      period: period,
+      times: times,
+      now: now,
+      isPositive: isPositive,
+      plan: plan);
 }
 
 class _CalendarState extends State<Calendar> {
@@ -127,11 +140,14 @@ class _CalendarState extends State<Calendar> {
   CollectionReference archives;
 
   _CalendarState(
-      {this.startDate, this.period, this.times, this.now, this.isPositive, this.plan}) {
-    print('-----------------------');
-    print(isPositive);
-    print('-----------------------');
+      {this.startDate,
+      this.period,
+      this.times,
+      this.now,
+      this.isPositive,
+      this.plan}) {
     archives = plan.collection('archives');
+
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
         DateTime.now().difference(DateTime.parse(startDate)).inDays,
@@ -182,52 +198,57 @@ class _CalendarState extends State<Calendar> {
         calendarController: _calendarController,
         startingDayOfWeek: StartingDayOfWeek.monday,
         onDaySelected: (date, events) {
-          if (!date.isAfter(DateTime.now())) {
+
+          if(isToday(date)){
+
             showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                      title: Text('입력'),
-                      content: TextField(
-                        controller: _eventController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter.digitsOnly
-                        ],
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text("Save"),
-                          onPressed: () {
-                            if (_eventController.text.isEmpty) return;
-                            int amount = int.parse(_eventController.text);
-                            if(period == '주'){
-                              now += amount;
+                  title: Text('입력'),
+                  content: TextField(
+                    controller: _eventController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      WhitelistingTextInputFormatter.digitsOnly
+                    ],
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Save"),
+                      onPressed: () {
+                        if (_eventController.text.isEmpty) return;
+                        int amount = int.parse(_eventController.text);
+                        if (period == '주') {
+                          now += amount;
+                          archives
+                              .document(date.toString().substring(0, 13))
+                              .setData(
+                              {"amount": amount, 'success': !isPositive});
+                          if ((!isPositive && now > times) ||
+                              (isPositive && now >= times)) {
+                            DateTime startWeek = date
+                                .subtract(Duration(days: date.weekday - 1));
+                            for (int i = 0; i < 7; i++) {
                               archives
-                                  .document(date.toString().substring(0, 13))
-                                  .setData({"amount": amount, 'success': !isPositive});
-                              if ((!isPositive && now > times) || (isPositive && now >= times)) {
-                                DateTime startWeek = date
-                                    .subtract(Duration(days: date.weekday - 1));
-                                for (int i = 0; i < 7; i++) {
-                                  archives
-                                      .document(
-                                      '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
-                                      .updateData({'success': isPositive});
-                                }
-                              }
-                            } else {
-                              now = amount;
-                              archives
-                                  .document(date.toString().substring(0, 13))
-                                  .setData({"amount": amount, 'success': isSuccess()});
+                                  .document(
+                                  '${startWeek.add(Duration(days: i)).toString().substring(0, 10)} 12')
+                                  .updateData({'success': isPositive});
                             }
-                            plan.updateData({'now': now});
-                            _eventController.clear();
-                            Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    ));
+                          }
+                        } else {
+                          now = amount;
+                          archives
+                              .document(date.toString().substring(0, 13))
+                              .setData(
+                              {"amount": amount, 'success': isSuccess()});
+                        }
+                        plan.updateData({'now': now});
+                        _eventController.clear();
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                ));
           }
         },
         builders: CalendarBuilders(
@@ -272,15 +293,25 @@ class _CalendarState extends State<Calendar> {
         events: _events);
   }
 
-  bool isSuccess(){
-    if(!isPositive && now > times){
+  bool isToday(DateTime date){
+    DateTime today = DateTime.now();
+    int diffDays = date.difference(today).inDays;
+    if(diffDays == 0 && date.day == today.day){
+      return true;
+    }
+    return false;
+  }
+
+  bool isSuccess() {
+    if (!isPositive && now > times) {
       return false;
-    } else if(isPositive && now < times) {
+    } else if (isPositive && now < times) {
       return false;
     } else {
       return true;
     }
   }
+
   @override
   void dispose() {
     _calendarController.dispose();
