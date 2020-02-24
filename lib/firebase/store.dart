@@ -15,6 +15,7 @@ class Store with ChangeNotifier {
   String _name;
 
   DocumentReference getGroup(String id) => GROUPS.document(id);
+  DocumentReference getGroupPlan(String uid, String plan) => USERS.document(uid).collection('plans').document(plan);
 
   void setUid(String uid) {
     user = USERS.document(uid);
@@ -89,14 +90,14 @@ class Store with ChangeNotifier {
     result
         .collection('participants')
         .document(user.documentID)
-        .setData({"plan": null, "name": _name});
+        .setData({"plan": '', "name": _name});
     user
         .collection("groups")
         .document(result.documentID)
         .setData({"title": group.title});
 
     group.friends.forEach((id, name) {
-      result.collection('participants').document(id).setData({"plan": null, "name": name});
+      result.collection('participants').document(id).setData({"plan": '', "name": name});
       USERS
           .document(id)
           .collection('groups')

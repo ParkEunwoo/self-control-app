@@ -15,25 +15,29 @@ class GroupList extends StatelessWidget {
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
           if (index < snapshot.length) {
-            return _buildRow(context, snapshot.elementAt(index), Provider.of<Store>(context).removeGroup);
+            return _buildRow(context, snapshot.elementAt(index),
+                Provider.of<Store>(context).removeGroup);
           }
           return null;
         });
   }
 
-  Widget _buildRow(BuildContext context, DocumentSnapshot group, Function removeGroup) {
+  Widget _buildRow(
+      BuildContext context, DocumentSnapshot group, Function removeGroup) {
     return ListTile(
         onTap: () {
+          Provider.of<Participant>(context, listen:false).setGroup(
+              group.documentID, Provider.of<Store>(context, listen:false).user.documentID);
           Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => GroupDetail(id:group.documentID, title:group['title'])
-            )
-          );
+              context,
+              MaterialPageRoute(
+                  builder: (context) => GroupDetail(
+                      id: group.documentID, title: group['title'])));
         },
         leading: Icon(Icons.group),
         title: Text(group["title"]),
-        trailing: IconButton(icon:Icon(Icons.delete),
+        trailing: IconButton(
+            icon: Icon(Icons.delete),
             onPressed: () {
               removeGroup(group.documentID);
             }));

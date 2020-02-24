@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:self_control/data/participant.dart';
 import 'package:self_control/firebase/admob.dart';
 import 'package:self_control/firebase/store.dart';
+import 'package:self_control/screens/DetailPage.dart';
 
 import 'Calendar.dart';
 import 'RemainingTime.dart';
@@ -28,14 +29,44 @@ class GroupDetail extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Text(title, style: TextStyle(fontSize: 22)),
             ),
-            Divider(), Container(height: 80, child: ParticipantsList(id: id))
-            //Content(context),
+            Divider(),
+            Container(height: 80, child: ParticipantsList(id: id)),
+            Expanded(child: ParticipantPlan())
           ],
         ));
   }
-/*
-  Widget Content(BuildContext context) {
+}
 
+class ParticipantPlan extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    if(Provider.of<Participant>(context).plan == '') {
+      if(Provider.of<Participant>(context).id == Provider.of<Store>(context).user.documentID) {
+        return Center(child:IconButton(icon:Icon(Icons.add_circle), iconSize: 64,));
+      }
+      return Center(child:Icon(Icons.error, size: 64));
+    }
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Provider.of<Store>(context)
+          .getGroupPlan(Provider.of<Participant>(context).id,
+              Provider.of<Participant>(context).plan)
+          .snapshots(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          default:
+            return snapshot.hasData
+                ? Content(context, snapshot.data)
+                : Container();
+        }
+      },
+    );
+  }
+
+  Widget Content(BuildContext context, DocumentSnapshot data) {
     return Column(
       children: <Widget>[
         Text(data['title'], style: TextStyle(fontSize: 20)),
@@ -53,12 +84,14 @@ class GroupDetail extends StatelessWidget {
           times: data['times'],
           now: data['now'],
           isPositive: data['isPositive'],
-          plan: Provider.of<Store>(context).plans.document(id),
+          plan: Provider.of<Store>(context).getGroupPlan(
+              Provider.of<Participant>(context).id,
+              Provider.of<Participant>(context).plan),
           authentication: true,
         )
       ],
     );
-  }*/
+  }
 }
 
 class ParticipantsList extends StatelessWidget {
@@ -92,7 +125,7 @@ class ParticipantsList extends StatelessWidget {
       child: ListTile(
           onTap: () {
             Provider.of<Participant>(context, listen: false)
-                .setParticipant(participant.documentID);
+                .setParticipant(participant.documentID, participant['plan']);
           },
           title: Icon(Icons.perm_identity,
               color: isSelected ? Colors.white : Colors.lightBlue),
