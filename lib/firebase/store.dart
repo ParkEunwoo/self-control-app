@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:self_control/data/group.dart';
 import 'package:self_control/data/plan.dart';
 
 class Store with ChangeNotifier {
   static final Firestore db = Firestore.instance;
-  static final CollectionReference Users = db.collection('users');
+  static final CollectionReference users = db.collection('users');
+  static final CollectionReference groups = db.collection('groups');
   DocumentReference user;
   CollectionReference plans;
   CollectionReference friends;
@@ -12,14 +14,13 @@ class Store with ChangeNotifier {
   String _name;
 
   void setUid(String uid) {
-    user = Users.document(uid);
+    user = users.document(uid);
     plans = user.collection('plans');
     friends = user.collection('friends');
     user.get().then((DocumentSnapshot ds) {
       _email = ds['email'];
       _name = ds['name'];
     });
-
   }
 
   static DateTime getGoalTime(String period) {
@@ -33,6 +34,7 @@ class Store with ChangeNotifier {
         return DateTime(now.year, now.month, now.day, 23, 59, 59);
     }
   }
+
   void addPlan(Plan plan) async {
     await plans.add({
       "title": plan.title,
@@ -47,37 +49,63 @@ class Store with ChangeNotifier {
     notifyListeners();
   }
 
-
   void addFriend(String email) {
-    Users.where("email", isEqualTo: email)
+    users
+        .where("email", isEqualTo: email)
         .snapshots()
-        .listen((onData) => onData.documents
-        .forEach((doc) {
-              friends.document(doc.documentID).setData({"email": email, "name": doc['name'], "status": "request"});
-              Users.document(doc.documentID).collection('friends').document(user.documentID).setData({"email":_email,"name":_name, "status": "respond"});
+        .listen((onData) => onData.documents.forEach((doc) {
+              friends.document(doc.documentID).setData(
+                  {"email": email, "name": doc['name'], "status": "request"});
+              users
+                  .document(doc.documentID)
+                  .collection('friends')
+                  .document(user.documentID)
+                  .setData(
+                      {"email": _email, "name": _name, "status": "respond"});
             }));
     notifyListeners();
   }
 
   void acceptFriend(String id) {
     friends.document(id).updateData({"status": "accepted"});
-    Users.document(id).collection('friends').document(user.documentID).updateData({"status":"accepted"});
+    users
+        .document(id)
+        .collection('friends')
+        .document(user.documentID)
+        .updateData({"status": "accepted"});
   }
-
 
   void removeFriend(String id) {
     friends.document(id).delete();
     notifyListeners();
   }
 
-  void addGroup() {
+  void addGroup(Group group) async {
+    DocumentReference result = await groups.add({"title": group.title});
+    result
+        .collection('participants')
+        .document(user.documentID)
+        .setData({"plan": null});
+    user
+        .collection("group")
+        .document(result.documentID)
+        .setData({"title": group.title});
 
+    group.friends.forEach((id) {
+      result.collection('participants').document(id).setData({"plan": null});
+      users
+          .document(id)
+          .collection('group')
+          .document(result.documentID)
+          .setData({"title": group.title});
+    });
+    notifyListeners();
   }
 
   static void createUser(
       {@required String uid,
       @required String email,
       @required String name}) async {
-    await Users.document(uid).setData({"email": email, "name": name});
+    await users.document(uid).setData({"email": email, "name": name});
   }
 }
