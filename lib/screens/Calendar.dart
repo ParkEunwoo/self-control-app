@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:self_control/firebase/store.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
@@ -70,7 +68,7 @@ class _CalendarState extends State<Calendar> {
         if (snapshot.hasError) return Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return LinearProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           default:
             setEvents(snapshot.data.documents);
             return _buildCalendar(context);

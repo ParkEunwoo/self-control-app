@@ -33,8 +33,8 @@ class _GroupFormState extends State<GroupForm> {
         child: Column(children: <Widget>[
           TextFormField(
             controller: emailController,
-            decoration:
-            InputDecoration(icon: Icon(Icons.account_circle), labelText: "email"),
+            decoration: InputDecoration(
+                icon: Icon(Icons.account_circle), labelText: "email"),
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter some text';

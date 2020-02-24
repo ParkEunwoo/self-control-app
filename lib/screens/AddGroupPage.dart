@@ -65,8 +65,9 @@ class _GroupFormState extends State<GroupForm> {
             if (!checkList.containsKey(snapshot.elementAt(index).documentID)) {
               checkList[snapshot.elementAt(index).documentID] = false;
             }
-            if(!friendName.containsKey(snapshot.elementAt(index).documentID)){
-              friendName[snapshot.elementAt(index).documentID] = snapshot.elementAt(index)['name'];
+            if (!friendName.containsKey(snapshot.elementAt(index).documentID)) {
+              friendName[snapshot.elementAt(index).documentID] =
+                  snapshot.elementAt(index)['name'];
             }
             return _buildRow(context, snapshot.elementAt(index));
           }
@@ -112,15 +113,13 @@ class _GroupFormState extends State<GroupForm> {
             onPressed: () {
               if (_formKey.currentState.validate()) {
                 Map<String, String> friends = {};
-                checkList.forEach((id, checked){
-                  if(checked){
+                checkList.forEach((id, checked) {
+                  if (checked) {
                     friends[id] = friendName[id];
                   }
                 });
-                Navigator.pop(
-                    context,
-                    Group(
-                        title: titleController.text,friends:friends));
+                Navigator.pop(context,
+                    Group(title: titleController.text, friends: friends));
                 Scaffold.of(context)
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
               }

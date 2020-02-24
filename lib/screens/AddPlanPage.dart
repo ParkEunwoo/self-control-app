@@ -1,7 +1,5 @@
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart';
 import 'package:self_control/data/plan.dart';
-import 'package:self_control/firebase/store.dart';
 
 class AddPlanPage extends StatelessWidget {
   @override
@@ -41,7 +39,7 @@ class _AddFormState extends State<AddForm> {
         key: _formKey,
         child: Column(children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal:16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextFormField(
               controller: titleController,
               decoration:
@@ -58,11 +56,11 @@ class _AddFormState extends State<AddForm> {
             children: <Widget>[
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: TextFormField(
                     controller: timesController,
-                    decoration:
-                        InputDecoration(icon: Icon(Icons.history), labelText: "횟수"),
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.history), labelText: "횟수"),
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter some text';
@@ -73,7 +71,7 @@ class _AddFormState extends State<AddForm> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right:16.0),
+                padding: const EdgeInsets.only(right: 16.0),
                 child: DropdownButton<String>(
                   value: period,
                   underline: Container(
@@ -97,7 +95,7 @@ class _AddFormState extends State<AddForm> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal:16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextFormField(
               controller: unitController,
               decoration:
@@ -111,8 +109,8 @@ class _AddFormState extends State<AddForm> {
             ),
           ),
           CheckboxListTile(
-            secondary: Icon(Icons.thumb_up),
-            title:Text('긍정'),
+              secondary: Icon(Icons.thumb_up),
+              title: Text('긍정'),
               value: isPositive,
               onChanged: (value) {
                 setState(() {

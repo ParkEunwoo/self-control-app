@@ -26,8 +26,9 @@ class GroupList extends StatelessWidget {
       BuildContext context, DocumentSnapshot group, Function removeGroup) {
     return ListTile(
         onTap: () {
-          Provider.of<Participant>(context, listen:false).setGroup(
-              group.documentID, Provider.of<Store>(context, listen:false).user.documentID);
+          Provider.of<Participant>(context, listen: false).setGroup(
+              group.documentID,
+              Provider.of<Store>(context, listen: false).user.documentID);
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -51,7 +52,7 @@ class GroupList extends StatelessWidget {
         if (snapshot.hasError) return Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           default:
             return snapshot.hasData
                 ? _buildList(context, snapshot.data.documents)

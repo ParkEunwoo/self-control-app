@@ -1,12 +1,12 @@
 import 'package:firebase_admob/firebase_admob.dart';
 
-class AdMob{
+class AdMob {
   String _appId = "ca-app-pub-3932064158863457~7528509536";
   String _atUnitId = "ca-app-pub-3932064158863457/6375209968";
   MobileAdTargetingInfo _targetingInfo;
   BannerAd _myBanner;
 
-  AdMob(){
+  AdMob() {
     FirebaseAdMob.instance.initialize(appId: _appId);
 
     _targetingInfo = MobileAdTargetingInfo(
@@ -15,7 +15,8 @@ class AdMob{
       birthday: DateTime.now(),
       childDirected: false,
       designedForFamilies: false,
-      gender: MobileAdGender.male, // or MobileAdGender.female, MobileAdGender.unknown
+      gender: MobileAdGender.male,
+      // or MobileAdGender.female, MobileAdGender.unknown
       testDevices: <String>[], // Android emulators are considered test devices
     );
 
@@ -34,9 +35,9 @@ class AdMob{
 
   static AdMob get instance => AdMob();
 
-  void showBanner(){
+  void showBanner() {
     _myBanner
-    // typically this happens well before the ad is shown
+      // typically this happens well before the ad is shown
       ..load()
       ..show(
         // Positions the banner ad 60 pixels from the bottom of the screen
@@ -47,6 +48,4 @@ class AdMob{
         anchorType: AnchorType.bottom,
       );
   }
-
-
 }

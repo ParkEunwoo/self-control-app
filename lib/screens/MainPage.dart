@@ -62,8 +62,9 @@ class _PageState extends State<Page> {
                       context,
                       MaterialPageRoute(builder: (context) => AddGroupPage()),
                     );
-                    if(group != null) {
-                      Provider.of<Store>(context, listen: false).addGroup(group);
+                    if (group != null) {
+                      Provider.of<Store>(context, listen: false)
+                          .addGroup(group);
                     }
 
                     break;
@@ -87,10 +88,13 @@ class _PageState extends State<Page> {
 
   Widget _buildBody() {
     switch (page) {
-      case FRIEND_PAGE: return FriendList();
-      case GROUP_PAGE: return GroupList();
+      case FRIEND_PAGE:
+        return FriendList();
+      case GROUP_PAGE:
+        return GroupList();
       case MAIN_PAGE:
-      default: return PlanList();
+      default:
+        return PlanList();
     }
   }
 
@@ -149,5 +153,4 @@ class _PageState extends State<Page> {
       ),
     );
   }
-
 }

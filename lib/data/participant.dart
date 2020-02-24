@@ -20,8 +20,9 @@ class Participant with ChangeNotifier {
     this.plan = plan;
     notifyListeners();
   }
+
   bool isSelected(String id) {
-    if(this.id == id){
+    if (this.id == id) {
       return true;
     }
     return false;

@@ -9,15 +9,13 @@ class RemainingTime extends StatefulWidget {
   RemainingTime({this.period, this.goal});
 
   @override
-  _RemainingTimeState createState() =>
-      _RemainingTimeState();
+  _RemainingTimeState createState() => _RemainingTimeState();
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
   DateTime now = DateTime.now();
   DateTime goal;
   String period;
-
 
   @override
   void initState() {

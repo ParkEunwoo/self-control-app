@@ -15,7 +15,9 @@ class Store with ChangeNotifier {
   String _name;
 
   DocumentReference getGroup(String id) => GROUPS.document(id);
-  DocumentReference getGroupPlan(String uid, String plan) => USERS.document(uid).collection('plans').document(plan);
+
+  DocumentReference getGroupPlan(String uid, String plan) =>
+      USERS.document(uid).collection('plans').document(plan);
 
   void setUid(String uid) {
     user = USERS.document(uid);
@@ -97,7 +99,10 @@ class Store with ChangeNotifier {
         .setData({"title": group.title});
 
     group.friends.forEach((id, name) {
-      result.collection('participants').document(id).setData({"plan": '', "name": name});
+      result
+          .collection('participants')
+          .document(id)
+          .setData({"plan": '', "name": name});
       USERS
           .document(id)
           .collection('groups')
@@ -109,9 +114,14 @@ class Store with ChangeNotifier {
 
   void removeGroup(String id) async {
     groups.document(id).delete();
-    QuerySnapshot participants = await GROUPS.document(id).collection("participants").getDocuments();
-    participants.documents.forEach((participants){
-      USERS.document(participants.documentID).collection("groups").document(id).delete();
+    QuerySnapshot participants =
+        await GROUPS.document(id).collection("participants").getDocuments();
+    participants.documents.forEach((participants) {
+      USERS
+          .document(participants.documentID)
+          .collection("groups")
+          .document(id)
+          .delete();
     });
     GROUPS.document(id).delete();
     notifyListeners();

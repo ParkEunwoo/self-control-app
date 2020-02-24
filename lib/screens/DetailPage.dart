@@ -20,14 +20,13 @@ class DetailPage extends StatelessWidget {
           title: Text("DetailPage"),
         ),
         body: StreamBuilder<DocumentSnapshot>(
-          stream:
-              Provider.of<Store>(context).plans.document(id).snapshots(),
+          stream: Provider.of<Store>(context).plans.document(id).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               default:
                 return snapshot.hasData
                     ? Content(context, snapshot.data)

@@ -64,7 +64,7 @@ class FriendList extends StatelessWidget {
           if (snapshot.hasError) return Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return CircularProgressIndicator();
+              return Center(child: CircularProgressIndicator());
             default:
               return snapshot.hasData
                   ? _buildList(context, snapshot.data.documents)

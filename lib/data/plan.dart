@@ -9,10 +9,10 @@ class Plan {
 
   int now = 0;
 
-  Plan({@required this.title,
-    @required this.period,
-    @required this.times,
-    @required this.timesUnit,
-    @required this.isPositive});
-
+  Plan(
+      {@required this.title,
+      @required this.period,
+      @required this.times,
+      @required this.timesUnit,
+      @required this.isPositive});
 }
