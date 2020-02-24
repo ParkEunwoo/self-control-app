@@ -47,6 +47,7 @@ class _GroupFormState extends State<GroupForm> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   Map<String, bool> checkList = {};
+  Map<String, String> friendName = {};
 
   @override
   void dispose() {
@@ -63,6 +64,9 @@ class _GroupFormState extends State<GroupForm> {
           if (index < snapshot.length) {
             if (!checkList.containsKey(snapshot.elementAt(index).documentID)) {
               checkList[snapshot.elementAt(index).documentID] = false;
+            }
+            if(!friendName.containsKey(snapshot.elementAt(index).documentID)){
+              friendName[snapshot.elementAt(index).documentID] = snapshot.elementAt(index)['name'];
             }
             return _buildRow(context, snapshot.elementAt(index));
           }
@@ -107,10 +111,10 @@ class _GroupFormState extends State<GroupForm> {
           RaisedButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                List<String> friends = [];
+                Map<String, String> friends = {};
                 checkList.forEach((id, checked){
                   if(checked){
-                    friends.add(id);
+                    friends[id] = friendName[id];
                   }
                 });
                 Navigator.pop(

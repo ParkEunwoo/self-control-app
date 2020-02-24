@@ -1,10 +1,10 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
 import 'package:self_control/firebase/admob.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import 'RemainingTime.dart';
 
 class DetailPage extends StatelessWidget {
   DocumentReference plan;
@@ -60,47 +60,6 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-class RemainingTime extends StatefulWidget {
-  String period;
-  DateTime goal;
-
-  RemainingTime({this.period, this.goal});
-
-  @override
-  _RemainingTimeState createState() =>
-      _RemainingTimeState();
-}
-
-class _RemainingTimeState extends State<RemainingTime> {
-  DateTime now = DateTime.now();
-  DateTime goal;
-  String period;
-
-
-  @override
-  void initState() {
-    goal = widget.goal;
-    period = widget.period;
-    Timer.periodic(Duration(seconds: 1), (v) {
-      setState(() {
-        now = DateTime.now(); // or BinaryTime see next step
-      });
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-        '${week()}${goal.hour - now.hour}시간 ${goal.minute - now.minute}분 ${goal.second - now.second}초');
-  }
-
-  String week() {
-    if (period == '일') return '';
-    return '${goal.day - now.day}일';
-  }
-}
 
 class Calendar extends StatefulWidget {
   String startDate;
@@ -111,12 +70,12 @@ class Calendar extends StatefulWidget {
   DocumentReference plan;
 
   Calendar(
-      {this.startDate,
+      {Key key, this.startDate,
       this.period,
       this.times,
       this.now,
       this.isPositive,
-      this.plan});
+      this.plan}) : super(key: key);
 
   @override
   _CalendarState createState() => _CalendarState();
@@ -134,8 +93,9 @@ class _CalendarState extends State<Calendar> {
   DocumentReference plan;
   CollectionReference archives;
 
-  _CalendarState() {
-
+  @override
+  void initState() {
+    super.initState();
     startDate = widget.startDate;
     period = widget.period;
     times = widget.times;
@@ -147,16 +107,11 @@ class _CalendarState extends State<Calendar> {
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
         DateTime.now().difference(DateTime.parse(startDate)).inDays + 1,
-        (index) => DateTime.parse(startDate).add(Duration(days: index)));
+            (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
     list.forEach((date) {
       _events[date] = [0, !isPositive];
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
     _calendarController = CalendarController();
     _eventController = TextEditingController();
   }

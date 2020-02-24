@@ -87,14 +87,14 @@ class Store with ChangeNotifier {
     result
         .collection('participants')
         .document(user.documentID)
-        .setData({"plan": null});
+        .setData({"plan": null, "name": _name});
     user
         .collection("groups")
         .document(result.documentID)
         .setData({"title": group.title});
 
-    group.friends.forEach((id) {
-      result.collection('participants').document(id).setData({"plan": null});
+    group.friends.forEach((id, name) {
+      result.collection('participants').document(id).setData({"plan": null, "name": name});
       USERS
           .document(id)
           .collection('groups')
@@ -108,8 +108,9 @@ class Store with ChangeNotifier {
     groups.document(id).delete();
     QuerySnapshot participants = await GROUPS.document(id).collection("participants").getDocuments();
     participants.documents.forEach((participants){
-      USERS.document(participants.documentID).delete();
+      USERS.document(participants.documentID).collection("groups").document(id).delete();
     });
+    GROUPS.document(id).delete();
     notifyListeners();
   }
 

@@ -21,6 +21,14 @@ class GroupList extends StatelessWidget {
 
   Widget _buildRow(BuildContext context, DocumentSnapshot group, Function removeGroup) {
     return ListTile(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => null
+            )
+          );
+        },
         leading: Icon(Icons.group),
         title: Text(group["title"]),
         trailing: IconButton(icon:Icon(Icons.delete),
