@@ -14,7 +14,30 @@ class ParticipantPlan extends StatelessWidget {
           Provider.of<Store>(context).user.documentID) {
         return Center(
             child: IconButton(
-                icon: Icon(Icons.add_circle), iconSize: 64, onPressed: () {}));
+                icon: Icon(Icons.add_circle),
+                iconSize: 64,
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) => SimpleDialog(
+                          title: Text('나의 계획 선택하기'),
+                          children: Provider.of<Store>(context)
+                              .getPlanList()
+                              .entries
+                              .map((entry) => SimpleDialogOption(
+                                  child: Text(entry.value),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Provider.of<Store>(context)
+                                        .getGroupPlan(
+                                            Provider.of<Participant>(context)
+                                                .id,
+                                            Provider.of<Participant>(context)
+                                                .plan)
+                                        .updateData({"plan": entry.key});
+                                  }))
+                              .toList()));
+                }));
       }
       return Center(child: Icon(Icons.error, size: 64));
     }

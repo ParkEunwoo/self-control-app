@@ -13,11 +13,14 @@ class Store with ChangeNotifier {
   CollectionReference groups;
   String _email;
   String _name;
+  Map<String, String> _planList;
 
   DocumentReference getGroup(String id) => GROUPS.document(id);
 
   DocumentReference getGroupPlan(String uid, String plan) =>
       USERS.document(uid).collection('plans').document(plan);
+
+  Map<String, String> getPlanList() => _planList;
 
   void setUid(String uid) {
     user = USERS.document(uid);
@@ -28,6 +31,10 @@ class Store with ChangeNotifier {
       _email = ds['email'];
       _name = ds['name'];
     });
+  }
+
+  void setPlanList(Map<String, String> planList) {
+    this._planList = planList;
   }
 
   static DateTime getGoalTime(String period) {

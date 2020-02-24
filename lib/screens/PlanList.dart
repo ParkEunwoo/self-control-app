@@ -9,6 +9,11 @@ class PlanList extends StatelessWidget {
   PlanList({Key key}) : super(key: key);
 
   Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    Map<String, String> planList = {};
+    snapshot.forEach((plan) {
+      planList[plan.documentID] = plan['title'].toString();
+    });
+    Provider.of<Store>(context).setPlanList(planList);
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {

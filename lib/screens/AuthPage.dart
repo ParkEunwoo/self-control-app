@@ -86,7 +86,6 @@ class _AuthFormState extends State<AuthForm> {
         GestureDetector(
             onTap: () {
               setState(() {
-                print(isLogin);
                 isLogin = !isLogin;
               });
             },
@@ -143,7 +142,6 @@ class _AuthFormState extends State<AuthForm> {
         GestureDetector(
             onTap: () {
               setState(() {
-                print(isLogin);
                 isLogin = !isLogin;
               });
             },
