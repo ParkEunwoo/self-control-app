@@ -104,6 +104,15 @@ class Store with ChangeNotifier {
     notifyListeners();
   }
 
+  void removeGroup(String id) async {
+    groups.document(id).delete();
+    QuerySnapshot participants = await GROUPS.document(id).collection("participants").getDocuments();
+    participants.documents.forEach((participants){
+      USERS.document(participants.documentID).delete();
+    });
+    notifyListeners();
+  }
+
   static void createUser(
       {@required String uid,
       @required String email,

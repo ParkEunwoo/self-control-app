@@ -13,17 +13,20 @@ class GroupList extends StatelessWidget {
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
           if (index < snapshot.length) {
-            return _buildRow(context, snapshot.elementAt(index));
+            return _buildRow(context, snapshot.elementAt(index), Provider.of<Store>(context).removeGroup);
           }
           return null;
         });
   }
 
-  Widget _buildRow(BuildContext context, DocumentSnapshot group) {
+  Widget _buildRow(BuildContext context, DocumentSnapshot group, Function removeGroup) {
     return ListTile(
         leading: Icon(Icons.group),
         title: Text(group["title"]),
-        trailing: Icon(Icons.delete));
+        trailing: IconButton(icon:Icon(Icons.delete),
+            onPressed: () {
+              removeGroup(group.documentID);
+            }));
   }
 
   @override
