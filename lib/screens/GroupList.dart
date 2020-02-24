@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:self_control/data/participant.dart';
 import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/GroupDetail.dart';
 
