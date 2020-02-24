@@ -33,8 +33,8 @@ class PlanList extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  DetailPage(plan: Provider.of<Store>(context).plans.document(plan.documentID))),
+              builder: (context) => DetailPage(
+                  id: plan.documentID)),
         );
       },
       leading: Icon(Icons.star),
