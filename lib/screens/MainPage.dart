@@ -1,10 +1,12 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
+import 'package:self_control/data/group.dart';
 import 'package:self_control/data/plan.dart';
 import 'package:self_control/firebase/admob.dart';
 import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
+import 'package:self_control/screens/GroupList.dart';
 
 import 'AddFriendPage.dart';
 import 'AddGroupPage.dart';
@@ -56,10 +58,13 @@ class _PageState extends State<Page> {
 
                     break;
                   case GROUP_PAGE:
-                    await Navigator.push(
+                    Group group = await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => AddGroupPage()),
                     );
+                    if(group != null) {
+                      Provider.of<Store>(context, listen: false).addGroup(group);
+                    }
 
                     break;
                   case MAIN_PAGE:
@@ -83,7 +88,7 @@ class _PageState extends State<Page> {
   Widget _buildBody() {
     switch (page) {
       case FRIEND_PAGE: return FriendList();
-      case GROUP_PAGE: return FriendList();
+      case GROUP_PAGE: return GroupList();
       case MAIN_PAGE:
       default: return PlanList();
     }

@@ -5,18 +5,20 @@ import 'package:self_control/data/plan.dart';
 
 class Store with ChangeNotifier {
   static final Firestore db = Firestore.instance;
-  static final CollectionReference users = db.collection('users');
-  static final CollectionReference groups = db.collection('groups');
+  static final CollectionReference USERS = db.collection('users');
+  static final CollectionReference GROUPS = db.collection('groups');
   DocumentReference user;
   CollectionReference plans;
   CollectionReference friends;
+  CollectionReference groups;
   String _email;
   String _name;
 
   void setUid(String uid) {
-    user = users.document(uid);
+    user = USERS.document(uid);
     plans = user.collection('plans');
     friends = user.collection('friends');
+    groups = user.collection('groups');
     user.get().then((DocumentSnapshot ds) {
       _email = ds['email'];
       _name = ds['name'];
@@ -50,13 +52,13 @@ class Store with ChangeNotifier {
   }
 
   void addFriend(String email) {
-    users
+    USERS
         .where("email", isEqualTo: email)
         .snapshots()
         .listen((onData) => onData.documents.forEach((doc) {
               friends.document(doc.documentID).setData(
                   {"email": email, "name": doc['name'], "status": "request"});
-              users
+              USERS
                   .document(doc.documentID)
                   .collection('friends')
                   .document(user.documentID)
@@ -68,7 +70,7 @@ class Store with ChangeNotifier {
 
   void acceptFriend(String id) {
     friends.document(id).updateData({"status": "accepted"});
-    users
+    USERS
         .document(id)
         .collection('friends')
         .document(user.documentID)
@@ -81,21 +83,21 @@ class Store with ChangeNotifier {
   }
 
   void addGroup(Group group) async {
-    DocumentReference result = await groups.add({"title": group.title});
+    DocumentReference result = await GROUPS.add({"title": group.title});
     result
         .collection('participants')
         .document(user.documentID)
         .setData({"plan": null});
     user
-        .collection("group")
+        .collection("groups")
         .document(result.documentID)
         .setData({"title": group.title});
 
     group.friends.forEach((id) {
       result.collection('participants').document(id).setData({"plan": null});
-      users
+      USERS
           .document(id)
-          .collection('group')
+          .collection('groups')
           .document(result.documentID)
           .setData({"title": group.title});
     });
@@ -106,6 +108,6 @@ class Store with ChangeNotifier {
       {@required String uid,
       @required String email,
       @required String name}) async {
-    await users.document(uid).setData({"email": email, "name": name});
+    await USERS.document(uid).setData({"email": email, "name": name});
   }
 }
