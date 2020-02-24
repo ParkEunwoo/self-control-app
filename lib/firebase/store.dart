@@ -35,6 +35,7 @@ class Store with ChangeNotifier {
 
   void setPlanList(Map<String, String> planList) {
     this._planList = planList;
+    notifyListeners();
   }
 
   static DateTime getGoalTime(String period) {

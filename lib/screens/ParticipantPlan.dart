@@ -21,20 +21,31 @@ class ParticipantPlan extends StatelessWidget {
                       context: context,
                       builder: (context) => SimpleDialog(
                           title: Text('나의 계획 선택하기'),
-                          children: Provider.of<Store>(context)
+                          children: Provider.of<Store>(context, listen: false)
                               .getPlanList()
                               .entries
                               .map((entry) => SimpleDialogOption(
                                   child: Text(entry.value),
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    Provider.of<Store>(context)
-                                        .getGroupPlan(
-                                            Provider.of<Participant>(context)
-                                                .id,
-                                            Provider.of<Participant>(context)
-                                                .plan)
+
+                                    Provider.of<Participant>(context,
+                                            listen: false)
+                                        .group
+                                        .collection('participants')
+                                        .document(Provider.of<Store>(context,
+                                                listen: false)
+                                            .user
+                                            .documentID)
                                         .updateData({"plan": entry.key});
+                                    Provider.of<Participant>(context,
+                                            listen: false)
+                                        .setParticipant(
+                                            Provider.of<Store>(context,
+                                                    listen: false)
+                                                .user
+                                                .documentID,
+                                            entry.key);
                                   }))
                               .toList()));
                 }));
