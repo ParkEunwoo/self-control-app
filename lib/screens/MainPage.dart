@@ -9,6 +9,7 @@ import 'package:self_control/screens/ListPage.dart';
 
 import 'AddFriendPage.dart';
 import 'AddGroupPage.dart';
+import 'FriendList.dart';
 import 'PlanList.dart';
 
 class MainPage extends StatelessWidget {
@@ -44,7 +45,7 @@ class _PageState extends State<Page> {
           title: Text("MainPage"),
         ),
         drawer: _buildDrawer(),
-        body: ListPage(page: page),
+        body: _buildBody(),
         floatingActionButton: Align(
             child: FloatingActionButton(
               onPressed: () async {
@@ -87,8 +88,8 @@ class _PageState extends State<Page> {
 
   Widget _buildBody() {
     switch (page) {
-      case FRIEND_PAGE:
-      case GROUP_PAGE:
+      case FRIEND_PAGE: return FriendList(checkable: false);
+      case GROUP_PAGE: return FriendList(checkable: true);
       case MAIN_PAGE:
       default: return PlanList();
     }
@@ -150,14 +151,4 @@ class _PageState extends State<Page> {
     );
   }
 
-  Widget GroupList() {
-    return ListView(
-      children: <Widget>[
-        ListTile(
-            leading: Icon(Icons.group),
-            title: Text('우용동언'),
-            trailing: Icon(Icons.delete)),
-      ],
-    );
-  }
 }

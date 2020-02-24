@@ -68,7 +68,7 @@ class RemainingTime extends StatefulWidget {
 
   @override
   _RemainingTimeState createState() =>
-      _RemainingTimeState(period: period, goal: goal);
+      _RemainingTimeState();
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
@@ -76,10 +76,11 @@ class _RemainingTimeState extends State<RemainingTime> {
   DateTime goal;
   String period;
 
-  _RemainingTimeState({this.period, this.goal});
 
   @override
   void initState() {
+    goal = widget.goal;
+    period = widget.period;
     Timer.periodic(Duration(seconds: 1), (v) {
       setState(() {
         now = DateTime.now(); // or BinaryTime see next step
@@ -118,13 +119,7 @@ class Calendar extends StatefulWidget {
       this.plan});
 
   @override
-  _CalendarState createState() => _CalendarState(
-      startDate: startDate,
-      period: period,
-      times: times,
-      now: now,
-      isPositive: isPositive,
-      plan: plan);
+  _CalendarState createState() => _CalendarState();
 }
 
 class _CalendarState extends State<Calendar> {
@@ -139,13 +134,14 @@ class _CalendarState extends State<Calendar> {
   DocumentReference plan;
   CollectionReference archives;
 
-  _CalendarState(
-      {this.startDate,
-      this.period,
-      this.times,
-      this.now,
-      this.isPositive,
-      this.plan}) {
+  _CalendarState() {
+
+    startDate = widget.startDate;
+    period = widget.period;
+    times = widget.times;
+    now = widget.now;
+    isPositive = widget.isPositive;
+    plan = widget.plan;
     archives = plan.collection('archives');
 
     _events = {};

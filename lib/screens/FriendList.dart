@@ -3,34 +3,62 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:self_control/firebase/store.dart';
 
+class FriendList extends StatefulWidget {
+  bool checkable;
 
-class FriendList extends StatelessWidget {
-  FriendList({Key key}) : super(key: key);
+  FriendList({Key key, this.checkable}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow,
+  @override
+  _FriendListState createState() => _FriendListState();
+}
+
+class _FriendListState extends State<FriendList> {
+  Map<String, bool> checkList = {};
+
+  Widget _buildList(
+      BuildContext context, List<DocumentSnapshot> snapshot, Function buildRow,
       {CollectionReference reference}) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
+          print('i:$i');
           if (i.isOdd) return Divider();
           final index = i ~/ 2;
+          print('index:$index');
           if (index < snapshot.length) {
+            if(!checkList.containsKey(snapshot.elementAt(index).documentID)) {
+              checkList[snapshot.elementAt(index).documentID] = false;
+            }
             return buildRow(context, snapshot.elementAt(index),
                 reference: reference);
+          } else if(widget.checkable && index == snapshot.length) {
+            return FlatButton(onPressed:(){},child:Text('완료'));
           }
           return null;
         });
   }
 
   Function _buildFriend(Function removeFriend, Function acceptFriend) {
-    Widget buildRow(BuildContext context, DocumentSnapshot friend,Function removeFriend, Function acceptFriend,
+    Widget buildRow(BuildContext context, DocumentSnapshot friend,
         {CollectionReference reference}) {
-      return ListTile(
-          leading: Icon(Icons.person),
-          title: Text(friend['name']),
-          subtitle: Text(friend['email']),
-          trailing: friendStatus(
-              friend['status'], friend.documentID, removeFriend, acceptFriend));
+      return widget.checkable
+          ? CheckboxListTile(
+              value: checkList[friend.documentID],
+              onChanged: (bool value) {
+                setState(() {
+                  checkList[friend.documentID] = value;
+                });
+              },
+              secondary: Icon(Icons.person),
+              title: Text(friend['name']),
+              subtitle: Text(friend['email']),
+            )
+          : ListTile(
+              leading: Icon(Icons.person),
+              title: Text(friend['name']),
+              subtitle: Text(friend['email']),
+              trailing: friendStatus(friend['status'], friend.documentID,
+                  removeFriend, acceptFriend));
     }
 
     return buildRow;
