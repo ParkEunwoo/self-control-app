@@ -14,6 +14,8 @@ class Store with ChangeNotifier {
   String _email;
   String _name;
 
+  DocumentReference getGroup(String id) => GROUPS.document(id);
+
   void setUid(String uid) {
     user = USERS.document(uid);
     plans = user.collection('plans');
