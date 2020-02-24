@@ -5,7 +5,6 @@ import 'package:self_control/firebase/admob.dart';
 import 'package:self_control/firebase/auth.dart';
 import 'package:self_control/firebase/store.dart';
 import 'package:self_control/screens/AddPlanPage.dart';
-import 'package:self_control/screens/ListPage.dart';
 
 import 'AddFriendPage.dart';
 import 'AddGroupPage.dart';
@@ -13,14 +12,9 @@ import 'FriendList.dart';
 import 'PlanList.dart';
 
 class MainPage extends StatelessWidget {
-  String uid;
-
-  MainPage({this.uid});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Store>(
-        create: (context) => Store(uid), child: Page());
+    return Page();
   }
 }
 
@@ -88,8 +82,8 @@ class _PageState extends State<Page> {
 
   Widget _buildBody() {
     switch (page) {
-      case FRIEND_PAGE: return FriendList(checkable: false);
-      case GROUP_PAGE: return FriendList(checkable: true);
+      case FRIEND_PAGE: return FriendList();
+      case GROUP_PAGE: return FriendList();
       case MAIN_PAGE:
       default: return PlanList();
     }

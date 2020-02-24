@@ -11,7 +11,7 @@ class Store with ChangeNotifier {
   String _email;
   String _name;
 
-  Store(String uid) {
+  void setUid(String uid) {
     user = Users.document(uid);
     plans = user.collection('plans');
     friends = user.collection('friends');
@@ -19,6 +19,7 @@ class Store with ChangeNotifier {
       _email = ds['email'];
       _name = ds['name'];
     });
+
   }
 
   static DateTime getGoalTime(String period) {
@@ -67,6 +68,10 @@ class Store with ChangeNotifier {
   void removeFriend(String id) {
     friends.document(id).delete();
     notifyListeners();
+  }
+
+  void addGroup() {
+
   }
 
   static void createUser(
