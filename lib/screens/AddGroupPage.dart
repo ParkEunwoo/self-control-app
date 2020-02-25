@@ -2,11 +2,13 @@ import "package:flutter/material.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:self_control/data/group.dart';
+import 'package:self_control/firebase/admob.dart';
 import 'package:self_control/firebase/store.dart';
 
 class AddGroupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AdMob.instance.showBanner();
     return Scaffold(
         appBar: AppBar(
           title: Text("AddGroupPage"),

@@ -1,8 +1,10 @@
 import "package:flutter/material.dart";
+import 'package:self_control/firebase/admob.dart';
 
 class AddFriendPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AdMob.instance.showBanner();
     return Scaffold(
         appBar: AppBar(
           title: Text("AddFriendPage"),
