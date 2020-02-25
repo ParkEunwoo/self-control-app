@@ -53,9 +53,12 @@ class _CalendarState extends State<Calendar> {
         DateTime.now().difference(DateTime.parse(startDate)).inDays + 1,
         (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
+    print('----------------');
     list.forEach((date) {
       _events[date] = [0, !isPositive];
+      print(date);
     });
+    print('----------------');
     _calendarController = CalendarController();
     _eventController = TextEditingController();
   }

@@ -13,9 +13,10 @@ class RemainingTime extends StatefulWidget {
 }
 
 class _RemainingTimeState extends State<RemainingTime> {
-  DateTime now = DateTime.now();
+  DateTime now;
   DateTime goal;
   String period;
+
 
   @override
   void initState() {
@@ -32,12 +33,15 @@ class _RemainingTimeState extends State<RemainingTime> {
 
   @override
   Widget build(BuildContext context) {
+    if(now == null) {
+      return Center(child:LinearProgressIndicator());
+    }
     return Text(
         '${week()}${goal.hour - now.hour}시간 ${goal.minute - now.minute}분 ${goal.second - now.second}초');
   }
 
   String week() {
     if (period == '일') return '';
-    return '${goal.day - now.day}일';
+    return '${goal.difference(now).inDays}일';
   }
 }
