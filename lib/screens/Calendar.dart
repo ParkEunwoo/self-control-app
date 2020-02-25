@@ -53,12 +53,6 @@ class _CalendarState extends State<Calendar> {
         DateTime.now().difference(DateTime.parse(startDate)).inDays + 1,
         (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
-    print('----------------');
-    list.forEach((date) {
-      _events[date] = [0, !isPositive];
-      print(date);
-    });
-    print('----------------');
     _calendarController = CalendarController();
     _eventController = TextEditingController();
   }
@@ -113,9 +107,10 @@ class _CalendarState extends State<Calendar> {
                           FlatButton(
                             child: Text("Save"),
                             onPressed: () {
+                              date = DateTime.parse(date.toString().substring(0, 23));
                               if (_eventController.text.isEmpty) return;
                               int amount = int.parse(_eventController.text);
-                              if (period == '주') {
+                              if (isWeek(period)) {
                                 now += amount - _events[date].first;
                                 archives
                                     .document(date.toString().substring(0, 13))
@@ -195,6 +190,10 @@ class _CalendarState extends State<Calendar> {
         events: _events);
   }
 
+  bool isWeek(String period) {
+    if(period == '주') return true;
+    return false;
+  }
   bool isToday(DateTime date) {
     DateTime today = DateTime.now();
     int diffDays = date.difference(today).inDays;
