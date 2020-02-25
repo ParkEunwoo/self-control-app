@@ -29,6 +29,8 @@ class GroupList extends StatelessWidget {
           Provider.of<Participant>(context, listen: false).setGroup(
               group.documentID,
               Provider.of<Store>(context, listen: false).user.documentID);
+          Provider.of<Participant>(context, listen: false)
+              .setParticipant("", "");
           Navigator.push(
               context,
               MaterialPageRoute(

@@ -8,7 +8,8 @@ import 'DetailPage.dart';
 class PlanList extends StatelessWidget {
   PlanList({Key key}) : super(key: key);
 
-  Future<void> setPlanList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  Future<void> setPlanList(
+      BuildContext context, List<DocumentSnapshot> snapshot) {
     Map<String, String> planList = {};
     snapshot.forEach((plan) {
       planList[plan.documentID] = plan['title'].toString();
@@ -36,20 +37,29 @@ class PlanList extends StatelessWidget {
             {"goalDate": '${Store.getGoalTime(plan['period'])}', "now": 0});
       }
     }
-    return ListTile(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DetailPage(id: plan.documentID)),
-        );
+    return Dismissible(
+      key: Key(plan.documentID),
+      onDismissed: (direction) {
+        Provider.of<Store>(context, listen: false).removePlan(plan.documentID);
+        Scaffold.of(context).showSnackBar(
+            SnackBar(content: Text("${plan['title']} dismissed")));
       },
-      leading: Icon(Icons.star),
-      title: Text(plan['title'], style: TextStyle(fontSize: 26)),
-      trailing: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text('${plan['now']}/${plan['times']}${plan['timesUnit']}',
-            style: TextStyle(fontSize: 16)),
+      background: Container(color: Colors.red),
+      child: ListTile(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailPage(id: plan.documentID)),
+          );
+        },
+        leading: Icon(Icons.star),
+        title: Text(plan['title'], style: TextStyle(fontSize: 26)),
+        trailing: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text('${plan['now']}/${plan['times']}${plan['timesUnit']}',
+              style: TextStyle(fontSize: 16)),
+        ),
       ),
     );
   }
@@ -63,7 +73,8 @@ class PlanList extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Center(child: CircularProgressIndicator());
-          default: setPlanList(context, snapshot.data.documents);
+          default:
+            setPlanList(context, snapshot.data.documents);
             return snapshot.hasData
                 ? _buildList(context, snapshot.data.documents)
                 : Container();

@@ -64,6 +64,27 @@ class Store with ChangeNotifier {
     notifyListeners();
   }
 
+  void removePlan(String id) {
+    plans.document(id).delete();
+    GROUPS.getDocuments().then((QuerySnapshot values) {
+      values.documents.forEach((group) {
+        GROUPS
+            .document(group.documentID)
+            .collection('participants')
+            .where("plan", isEqualTo: id)
+            .snapshots()
+            .listen((onData) => onData.documents.forEach((doc) {
+                  GROUPS
+                      .document(group.documentID)
+                      .collection('participants')
+                      .document(doc.documentID)
+                      .updateData({"plan": ""});
+                }));
+      });
+    });
+    notifyListeners();
+  }
+
   void addFriend(String email) {
     USERS
         .where("email", isEqualTo: email)
