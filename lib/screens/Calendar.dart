@@ -51,8 +51,11 @@ class _CalendarState extends State<Calendar> {
     _events = {};
     List<DateTime> list = List<DateTime>.generate(
         DateTime.now().difference(DateTime.parse(startDate)).inDays + 1,
-        (index) => DateTime.parse(startDate).add(Duration(days: index)));
+            (index) => DateTime.parse(startDate).add(Duration(days: index)));
 
+    list.forEach((date) {
+      _events[date] = [0, !isPositive];
+    });
     _calendarController = CalendarController();
     _eventController = TextEditingController();
   }
@@ -105,7 +108,7 @@ class _CalendarState extends State<Calendar> {
                         ),
                         actions: <Widget>[
                           FlatButton(
-                            child: Text("Save"),
+                            child: Text("확인"),
                             onPressed: () {
                               date = DateTime.parse(date.toString().substring(0, 23));
                               if (_eventController.text.isEmpty) return;
