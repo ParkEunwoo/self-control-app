@@ -11,7 +11,6 @@ class Participant with ChangeNotifier {
   void setGroup(String id, String uid) {
     this.groupId = id;
     group = Store.GROUPS.document(id);
-    setParticipant(uid, '');
     notifyListeners();
   }
 

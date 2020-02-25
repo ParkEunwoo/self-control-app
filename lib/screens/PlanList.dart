@@ -8,12 +8,15 @@ import 'DetailPage.dart';
 class PlanList extends StatelessWidget {
   PlanList({Key key}) : super(key: key);
 
-  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  Future<void> setPlanList(BuildContext context, List<DocumentSnapshot> snapshot) {
     Map<String, String> planList = {};
     snapshot.forEach((plan) {
       planList[plan.documentID] = plan['title'].toString();
     });
     Provider.of<Store>(context).setPlanList(planList);
+  }
+
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
@@ -60,7 +63,7 @@ class PlanList extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Center(child: CircularProgressIndicator());
-          default:
+          default: setPlanList(context, snapshot.data.documents);
             return snapshot.hasData
                 ? _buildList(context, snapshot.data.documents)
                 : Container();
